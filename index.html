@@ -276,26 +276,6 @@
       background: var(--gold);
       border-radius: 50%;
     }
-    #api-key-row {
-      margin-bottom: .8rem;
-    }
-    #api-key-input {
-      width: 100%;
-      padding: .5rem .8rem;
-      font-family: var(--ff-mono);
-      font-size: .78rem;
-      border: 1px solid var(--border);
-      background: var(--paper);
-      color: var(--ink);
-      outline: none;
-    }
-    #api-key-input:focus { border-color: var(--gold); }
-    .ai-hint {
-      font-size: .75rem;
-      color: var(--ink-3);
-      margin-top: .3rem;
-    }
-    .ai-hint a { color: var(--gold); }
     #chat-history {
       max-height: 280px;
       overflow-y: auto;
@@ -423,13 +403,6 @@
 
     <div class="ai-section">
       <div class="ai-label">KI-Assistent (Groq)</div>
-      <div id="api-key-row">
-        <input type="password" id="api-key-input" placeholder="Groq API-Key eingeben …">
-        <p class="ai-hint">
-          Kostenloser Key: <a href="https://console.groq.com" target="_blank">console.groq.com</a>
-          — wird nur lokal gespeichert, nie übertragen.
-        </p>
-      </div>
       <div id="chat-history"></div>
       <div class="chat-input-row">
         <textarea id="chat-input" rows="2"
@@ -445,7 +418,7 @@
 // ─── Konfiguration ────────────────────────────────────────────────────────────
 const INDEX_URL  = "./data/index.json";
 const META_URL   = "./data/meta.json";
-const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_URL   = "https://gesetze-ki.n-hungerland.workers.dev";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -623,29 +596,17 @@ function closePanel() {
   currentItem = null;
 }
 
-// ─── API-Key speichern ────────────────────────────────────────────────────────
-const apiKeyInput = document.getElementById("api-key-input");
-apiKeyInput.value = localStorage.getItem("groq_api_key") || "";
-apiKeyInput.addEventListener("change", () =>
-  localStorage.setItem("groq_api_key", apiKeyInput.value.trim())
-);
-
 // ─── Groq KI-Chat ─────────────────────────────────────────────────────────────
 document.getElementById("chat-input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); }
 });
 
 async function sendChat() {
-  const apiKey = apiKeyInput.value.trim();
   const input  = document.getElementById("chat-input");
   const btn    = document.getElementById("chat-send");
   const q      = input.value.trim();
 
   if (!q) return;
-  if (!apiKey) {
-    addChatMsg("Bitte zuerst einen Groq API-Key eingeben.", "error");
-    return;
-  }
 
   input.value = "";
   btn.disabled = true;
@@ -675,7 +636,6 @@ Dies ist keine Rechtsberatung im Sinne des RDG.`;
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
