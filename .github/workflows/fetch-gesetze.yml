@@ -1,0 +1,75 @@
+name: Gesetze aktualisieren
+
+on:
+  schedule:
+    # Täglich um 03:00 UTC (05:00 MEZ / 04:00 MESZ)
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      gesetz:
+        description: "Nur dieses Gesetz laden (Kürzel, z.B. bgb). Leer = alle Starter-Gesetze."
+        required: false
+        default: ""
+      full_update:
+        description: "Alle ~6000 Gesetze laden (dauert lange)"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # nötig für git commit
+
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Abhängigkeiten installieren
+        run: |
+          pip install --upgrade pip
+          # Standard-Bibliothek reicht aus (urllib, json, xml)
+          # Optionale Erweiterungen:
+          # pip install httpx lxml
+
+      - name: Gesetze laden
+        run: |
+          if [ "${{ github.event.inputs.full_update }}" = "true" ]; then
+            python scripts/fetch.py --all
+          elif [ -n "${{ github.event.inputs.gesetz }}" ]; then
+            python scripts/fetch.py --gesetz "${{ github.event.inputs.gesetz }}"
+          else
+            python scripts/fetch.py
+          fi
+
+      - name: Änderungen committen
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          # Nur committen wenn es Änderungen gibt
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen – nichts zu committen."
+          else
+            DATUM=$(date -u "+%Y-%m-%d %H:%M UTC")
+            git commit -m "chore: Gesetze aktualisiert – ${DATUM}"
+            git push
+          fi
+
+      - name: Zusammenfassung
+        run: |
+          echo "## Ergebnis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f data/meta.json ]; then
+            ANZAHL=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(d.get('anzahl_eintraege', '?'))")
+            GESETZE=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(len(d.get('gesetze', [])))")
+            echo "- **${ANZAHL}** Paragraphen in **${GESETZE}** Gesetzen im Index" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- Abgeschlossen: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
