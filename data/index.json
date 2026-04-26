@@ -1,0 +1,51 @@
+[
+  {
+    "gesetz": "bgb",
+    "gesetzName": "Bürgerliches Gesetzbuch",
+    "bezeichnung": "§ 823",
+    "titel": "Schadensersatzpflicht",
+    "inhalt": "(1) Wer vorsätzlich oder fahrlässig das Leben, den Körper, die Gesundheit, die Freiheit, das Eigentum oder ein sonstiges Recht eines anderen widerrechtlich verletzt, ist dem anderen zum Ersatz des daraus entstehenden Schadens verpflichtet. (2) Die gleiche Verpflichtung trifft denjenigen, welcher gegen ein den Schutz eines anderen bezweckendes Gesetz verstößt."
+  },
+  {
+    "gesetz": "bgb",
+    "gesetzName": "Bürgerliches Gesetzbuch",
+    "bezeichnung": "§ 433",
+    "titel": "Vertragstypische Pflichten beim Kaufvertrag",
+    "inhalt": "(1) Durch den Kaufvertrag wird der Verkäufer einer Sache verpflichtet, dem Käufer die Sache zu übergeben und das Eigentum an der Sache zu verschaffen. Der Verkäufer hat dem Käufer die Sache frei von Sach- und Rechtsmängeln zu verschaffen. (2) Der Käufer ist verpflichtet, dem Verkäufer den vereinbarten Kaufpreis zu zahlen und die gekaufte Sache abzunehmen."
+  },
+  {
+    "gesetz": "bgb",
+    "gesetzName": "Bürgerliches Gesetzbuch",
+    "bezeichnung": "§ 242",
+    "titel": "Leistung nach Treu und Glauben",
+    "inhalt": "Der Schuldner ist verpflichtet, die Leistung so zu bewirken, wie Treu und Glauben mit Rücksicht auf die Verkehrssitte es erfordern."
+  },
+  {
+    "gesetz": "gg",
+    "gesetzName": "Grundgesetz",
+    "bezeichnung": "Art. 1",
+    "titel": "Menschenwürde, Menschenrechte, Grundrechtsbindung",
+    "inhalt": "(1) Die Würde des Menschen ist unantastbar. Sie zu achten und zu schützen ist Verpflichtung aller staatlichen Gewalt. (2) Das Deutsche Volk bekennt sich darum zu unverletzlichen und unveräußerlichen Menschenrechten als Grundlage jeder menschlichen Gemeinschaft, des Friedens und der Gerechtigkeit in der Welt. (3) Die nachfolgenden Grundrechte binden Gesetzgebung, vollziehende Gewalt und Rechtsprechung als unmittelbar geltendes Recht."
+  },
+  {
+    "gesetz": "gg",
+    "gesetzName": "Grundgesetz",
+    "bezeichnung": "Art. 2",
+    "titel": "Freie Entfaltung der Persönlichkeit; Freiheit der Person",
+    "inhalt": "(1) Jeder hat das Recht auf die freie Entfaltung seiner Persönlichkeit, soweit er nicht die Rechte anderer verletzt und nicht gegen die verfassungsmäßige Ordnung oder das Sittengesetz verstößt. (2) Jeder hat das Recht auf Leben und körperliche Unversehrtheit. Die Freiheit der Person ist unverletzlich. In diese Rechte darf nur auf Grund eines Gesetzes eingegriffen werden."
+  },
+  {
+    "gesetz": "stgb",
+    "gesetzName": "Strafgesetzbuch",
+    "bezeichnung": "§ 263",
+    "titel": "Betrug",
+    "inhalt": "(1) Wer in der Absicht, sich oder einem Dritten einen rechtswidrigen Vermögensvorteil zu verschaffen, das Vermögen eines anderen dadurch beschädigt, dass er durch Vorspiegelung falscher oder durch Entstellung oder Unterdrückung wahrer Tatsachen einen Irrtum erregt oder unterhält, wird mit Freiheitsstrafe bis zu fünf Jahren oder mit Geldstrafe bestraft."
+  },
+  {
+    "gesetz": "bdsg_2018",
+    "gesetzName": "Bundesdatenschutzgesetz",
+    "bezeichnung": "§ 1",
+    "titel": "Anwendungsbereich des Gesetzes",
+    "inhalt": "Dieses Gesetz gilt für die Verarbeitung personenbezogener Daten durch öffentliche Stellen des Bundes, öffentliche Stellen der Länder, soweit der Datenschutz nicht durch Landesrecht geregelt ist und soweit sie Bundesrecht ausführen oder als Organe der Rechtspflege tätig werden, und nichtöffentliche Stellen, soweit sie personenbezogene Daten ganz oder teilweise automatisiert verarbeiten oder nichtautomatisiert verarbeiten und die Daten in einem Dateisystem speichern, nutzen oder für die Speicherung oder Nutzung bestimmt sind."
+  }
+]
