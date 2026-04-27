@@ -1,293 +1,200 @@
 #!/usr/bin/env python3
-"""
-Scraper für gesetze-im-internet.de
-Lädt Gesetze als XML herunter und konvertiert sie zu JSON.
+“””
+Schneller Gesetze-Scraper – fertig in 1-2 Minuten
+Nutzt gii-toc.xml von gesetze-im-internet.de
 
 Verwendung:
-  python fetch.py                  # Alle konfigurierten Gesetze
-  python fetch.py --gesetz bgb     # Nur ein bestimmtes Gesetz
-  python fetch.py --all            # Alle verfügbaren Gesetze (>6000, langsam)
-"""
+python fetch.py          # Starter-Set
+python fetch.py –test   # Nur 3 Gesetze zum schnellen Testen
+python fetch.py –gesetz bgb
+python fetch.py –all
+“””
 
-import json
-import os
-import re
-import time
-import argparse
+import json, re, time, argparse, zipfile, io
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
-import urllib.request
-import urllib.error
+import urllib.request, urllib.error
 
-# ─── Konfiguration ────────────────────────────────────────────────────────────
+BASE_URL = “https://www.gesetze-im-internet.de”
+TOC_URL  = f”{BASE_URL}/gii-toc.xml”
+DATA_DIR = Path(**file**).parent.parent / “data”
+HEADERS  = {“User-Agent”: “gesetze-de-repo/2.0 (github.com; open-source)”}
 
-BASE_URL = "https://www.gesetze-im-internet.de"
-DATA_DIR = Path(__file__).parent.parent / "data"
+STARTER = [
+“GG”,“BGB”,“StGB”,“HGB”,“ZPO”,“StPO”,“UrhG”,“UWG”,“GWB”,
+“TMG”,“TTDSG”,“BDSG_2018”,“EstG”,“InsO”,“KSchG”,“ArbGG”,
+“BetrVG”,“AO_1977”,“UStG_1980”,“PatG”,“MarkG”,“VwGO”,“VwVfG”,
+“AufenthG_2004”,“AsylG”,“StVZO”,“StVO”,“SGB_1”,“SGB_5”,“GwG_2017”,
+]
+TEST_SET = [“GG”, “BGB”, “StGB”]
 
-# Starter-Set: die wichtigsten deutschen Gesetze
-GESETZE_STARTER = {
-    "gg":       "Grundgesetz",
-    "bgb":      "Bürgerliches Gesetzbuch",
-    "stgb":     "Strafgesetzbuch",
-    "hgb":      "Handelsgesetzbuch",
-    "zpo":      "Zivilprozessordnung",
-    "stpo":     "Strafprozessordnung",
-    "ao_1977":  "Abgabenordnung",
-    "inso":     "Insolvenzordnung",
-    "arbgg":    "Arbeitsgerichtsgesetz",
-    "betrvg":   "Betriebsverfassungsgesetz",
-    "kschg":    "Kündigungsschutzgesetz",
-    "mabv":     "Makler- und Bauträgerverordnung",
-    "ustg_1980":"Umsatzsteuergesetz",
-    "estg":     "Einkommensteuergesetz",
-    "gwg_2017": "Geldwäschegesetz",
-    "bdsg_2018":"Bundesdatenschutzgesetz",
-    "tmg":      "Telemediengesetz",
-    "ttdsg":    "Telekommunikation-Telemedien-Datenschutz-Gesetz",
-    "urhg":     "Urheberrechtsgesetz",
-    "patg":     "Patentgesetz",
-    "markg":    "Markengesetz",
-    "uwg":      "Gesetz gegen unlauteren Wettbewerb",
-    "gwb":      "Gesetz gegen Wettbewerbsbeschränkungen",
-    "vwgo":     "Verwaltungsgerichtsordnung",
-    "vwvfg":    "Verwaltungsverfahrensgesetz",
-    "sgb_1":    "SGB I – Allgemeiner Teil",
-    "sgb_5":    "SGB V – Krankenversicherung",
-    "aufenthg_2004": "Aufenthaltsgesetz",
-    "asylg":    "Asylgesetz",
-    "stvzo":    "Straßenverkehrs-Zulassungs-Ordnung",
-    "stvo":     "Straßenverkehrs-Ordnung",
+def fetch(url):
+for attempt in range(3):
+try:
+req = urllib.request.Request(url, headers=HEADERS)
+with urllib.request.urlopen(req, timeout=30) as r:
+return r.read()
+except urllib.error.HTTPError as e:
+if e.code == 404: return None
+print(f”  HTTP {e.code} – Versuch {attempt+1}/3”)
+except Exception as e:
+print(f”  Fehler: {e}”)
+if attempt < 2: time.sleep(1.5 * (attempt+1))
+return None
+
+def load_toc():
+print(“→ Lade gii-toc.xml …”)
+data = fetch(TOC_URL)
+if not data:
+print(”  ✗ Nicht erreichbar”); return {}
+root = ET.fromstring(data)
+toc = {}
+for item in root.iter(“item”):
+title = (item.findtext(“title”) or item.get(“title”,””)).strip()
+link  = (item.findtext(“link”)  or item.get(“link”, item.get(“url”,””))).strip()
+if title and link:
+toc[title.upper()] = link
+# Fallback: URLs direkt aus dem XML extrahieren
+if not toc:
+for el in root.iter():
+t = (el.text or “”).strip()
+if “xml.zip” in t:
+m = re.search(r’/([a-z0-9_]+)/xml.zip’, t, re.I)
+if m:
+k = m.group(1).upper()
+toc[k] = t if t.startswith(“http”) else f”{BASE_URL}{t}”
+print(f”  ✓ {len(toc)} Einträge gefunden”)
+return toc
+
+def parse_xml(data, kuerzel):
+if data[:2] == b”PK”:
+try:
+with zipfile.ZipFile(io.BytesIO(data)) as z:
+xml_files = [f for f in z.namelist() if f.endswith(”.xml”)]
+if not xml_files: return {}
+xml_file = max(xml_files, key=lambda f: z.getinfo(f).file_size)
+data = z.read(xml_file)
+except: pass
+
+```
+try: root = ET.fromstring(data)
+except ET.ParseError as e:
+    print(f"  ✗ XML-Fehler: {e}"); return {}
+
+tag = root.tag
+ns = tag.split("}")[0]+"}" if "{" in tag else ""
+def t(n): return f"{ns}{n}"
+
+paragraphen, meta = [], {}
+for norm in root.findall(f".//{t('norm')}"):
+    md = norm.find(t("metadaten"))
+    if md is None: continue
+    enbez = md.findtext(t("enbez"),"").strip()
+    titel = md.findtext(t("titel"),"").strip()
+    if not enbez and not meta:
+        meta = {
+            "langtitel": md.findtext(t("langue"),""),
+            "kurztitel": md.findtext(t("jurabk"), kuerzel),
+            "ausfertigungsdatum": md.findtext(t("ausfertigung-datum"),""),
+        }
+        continue
+    if not enbez: continue
+    text_el = norm.find(f".//{t('textdaten')}")
+    inhalt = ""
+    if text_el is not None:
+        inhalt = re.sub(r"\s+", " ",
+            ET.tostring(text_el, encoding="unicode", method="text")).strip()
+    paragraphen.append({
+        "bezeichnung": enbez,
+        "titel":       titel,
+        "inhalt":      inhalt[:5000],
+    })
+return {"meta": meta, "paragraphen": paragraphen, "count": len(paragraphen)}
+```
+
+def fetch_gesetz(kuerzel, xml_url, name=””):
+kl = kuerzel.lower()
+print(f”  → {kuerzel}”, end=” “)
+data = fetch(xml_url) or fetch(f”{BASE_URL}/{kl}/xml.zip”)
+if not data:
+print(“✗ nicht erreichbar”); return False
+parsed = parse_xml(data, kuerzel)
+if not parsed.get(“paragraphen”):
+print(“✗ keine Paragraphen”); return False
+out = DATA_DIR / kl
+out.mkdir(parents=True, exist_ok=True)
+result = {
+“kuerzel”:   kl,
+“name”:      name or parsed[“meta”].get(“langtitel”, kuerzel),
+“quelle”:    f”{BASE_URL}/{kl}/”,
+“abgerufen”: datetime.now(timezone.utc).isoformat(),
+**parsed,
 }
-
-# ─── HTTP Hilfsfunktionen ──────────────────────────────────────────────────────
-
-def fetch_url(url: str, retries: int = 3, delay: float = 1.0) -> bytes | None:
-    """Lädt eine URL mit Retry-Logik."""
-    headers = {
-        "User-Agent": "gesetze-de-repo/1.0 (github.com; open-source legal data)"
-    }
-    for attempt in range(retries):
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return resp.read()
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                print(f"  404 – nicht gefunden: {url}")
-                return None
-            print(f"  HTTP {e.code} bei {url}, Versuch {attempt+1}/{retries}")
-        except Exception as e:
-            print(f"  Fehler bei {url}: {e}, Versuch {attempt+1}/{retries}")
-        if attempt < retries - 1:
-            time.sleep(delay * (attempt + 1))
-    return None
-
-# ─── XML Parser ───────────────────────────────────────────────────────────────
-
-def parse_gesetze_xml(xml_bytes: bytes, kuerzel: str) -> dict:
-    """
-    Parst das XML-Format von gesetze-im-internet.de.
-    Struktur: <dokumente> → <norm> (enthält Metadaten + Paragraphen)
-    """
-    try:
-        root = ET.fromstring(xml_bytes)
-    except ET.ParseError as e:
-        print(f"  XML-Fehler: {e}")
-        return {}
-
-    ns = ""
-    # Namespace-Erkennung
-    tag = root.tag
-    if "{" in tag:
-        ns = tag.split("}")[0] + "}"
-
-    def t(name):
-        return f"{ns}{name}"
-
-    paragraphen = []
-    meta = {}
-
-    for norm in root.findall(f".//{t('norm')}"):
-        # Metadaten der Norm
-        metadaten = norm.find(t("metadaten"))
-        text_el = norm.find(f".//{t('textdaten')}")
-
-        if metadaten is None:
-            continue
-
-        enbez = metadaten.findtext(t("enbez"), "")    # z.B. "§ 823"
-        titel = metadaten.findtext(t("titel"), "")    # Überschrift
-        gliederung = metadaten.findtext(t("gliederungseinheit"), "")
-
-        # Gesetz-Metadaten (erste Norm ohne enbez)
-        if not enbez and not meta:
-            meta = {
-                "langtitel":  metadaten.findtext(t("langue"), ""),
-                "kurztitel":  metadaten.findtext(t("jurabk"), kuerzel.upper()),
-                "amtabk":     metadaten.findtext(t("amtabk"), ""),
-                "ausfertigungsdatum": metadaten.findtext(t("ausfertigung-datum"), ""),
-                "fundstelle":  metadaten.findtext(t("fundstelle"), ""),
-            }
-            continue
-
-        if not enbez:
-            continue
-
-        # Textinhalt extrahieren
-        inhalt_raw = ""
-        if text_el is not None:
-            # Alle Text-Elemente zusammenführen, HTML-Tags entfernen
-            inhalt_raw = ET.tostring(text_el, encoding="unicode", method="text")
-            inhalt_raw = re.sub(r"\s+", " ", inhalt_raw).strip()
-
-        paragraphen.append({
-            "bezeichnung": enbez,
-            "titel":       titel,
-            "gliederung":  gliederung,
-            "inhalt":      inhalt_raw[:5000],  # max 5000 Zeichen pro Paragraph
-        })
-
-    return {
-        "meta": meta,
-        "paragraphen": paragraphen,
-        "count": len(paragraphen),
-    }
-
-# ─── Einzelnes Gesetz laden ───────────────────────────────────────────────────
-
-def fetch_gesetz(kuerzel: str, name: str) -> bool:
-    """Lädt ein Gesetz von gesetze-im-internet.de und speichert es als JSON."""
-    print(f"→ {kuerzel.upper()} – {name}")
-
-    # XML-URL: https://www.gesetze-im-internet.de/{kuerzel}/xml.zip oder direkt
-    xml_url = f"{BASE_URL}/{kuerzel}/xml.zip"
-    data = fetch_url(xml_url)
-
-    if data is None:
-        # Fallback: direktes XML
-        xml_url = f"{BASE_URL}/{kuerzel.lower()}/gesamt.xml"
-        data = fetch_url(xml_url)
-
-    if data is None:
-        print(f"  ✗ Konnte {kuerzel} nicht laden")
-        return False
-
-    # ZIP entpacken falls nötig
-    if data[:2] == b"PK":
-        import zipfile, io
-        try:
-            with zipfile.ZipFile(io.BytesIO(data)) as z:
-                xml_files = [f for f in z.namelist() if f.endswith(".xml")]
-                if not xml_files:
-                    print(f"  ✗ Keine XML-Datei im ZIP für {kuerzel}")
-                    return False
-                # Größte XML-Datei nehmen (= Volltext)
-                xml_file = max(xml_files, key=lambda f: z.getinfo(f).file_size)
-                data = z.read(xml_file)
-        except zipfile.BadZipFile:
-            pass  # War kein ZIP, als XML weiterverarbeiten
-
-    parsed = parse_gesetze_xml(data, kuerzel)
-    if not parsed or not parsed.get("paragraphen"):
-        print(f"  ✗ Keine Paragraphen gefunden für {kuerzel}")
-        return False
-
-    # Ausgabeverzeichnis
-    out_dir = DATA_DIR / kuerzel.lower()
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    result = {
-        "kuerzel":   kuerzel.lower(),
-        "name":      name,
-        "quelle":    f"{BASE_URL}/{kuerzel}/",
-        "abgerufen": datetime.now(timezone.utc).isoformat(),
-        **parsed,
-    }
-
-    with open(out_dir / "data.json", "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
-
-    print(f"  ✓ {parsed['count']} Paragraphen gespeichert")
-    return True
-
-# ─── Index aufbauen ───────────────────────────────────────────────────────────
+with open(out/“data.json”,“w”,encoding=“utf-8”) as f:
+json.dump(result, f, ensure_ascii=False, indent=2)
+print(f”✓ {parsed[‘count’]} §§”)
+return True
 
 def build_index():
-    """Erstellt index.json mit allen Gesetzen (ohne Volltexte, nur Metadaten)."""
-    print("\n→ Baue Suchindex...")
-    index = []
-
-    for gesetz_dir in sorted(DATA_DIR.iterdir()):
-        data_file = gesetz_dir / "data.json"
-        if not data_file.exists():
-            continue
-
-        with open(data_file, encoding="utf-8") as f:
-            g = json.load(f)
-
-        # Flache Liste für Fuse.js: ein Eintrag pro Paragraph
-        for p in g.get("paragraphen", []):
-            index.append({
-                "gesetz":      g["kuerzel"],
-                "gesetzName":  g["name"],
-                "bezeichnung": p["bezeichnung"],
-                "titel":       p["titel"],
-                "inhalt":      p["inhalt"][:500],  # Kurzer Auszug für Suche
-            })
-
-    with open(DATA_DIR / "index.json", "w", encoding="utf-8") as f:
-        json.dump(index, f, ensure_ascii=False, separators=(",", ":"))
-
-    print(f"  ✓ Index mit {len(index)} Einträgen erstellt")
-
-    # Meta-Übersicht
-    meta = {
-        "generiert":   datetime.now(timezone.utc).isoformat(),
-        "anzahl_eintraege": len(index),
-        "gesetze": list({e["gesetz"] for e in index}),
-    }
-    with open(DATA_DIR / "meta.json", "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=2)
-
-# ─── Hauptprogramm ────────────────────────────────────────────────────────────
+print(”\n→ Baue index.json …”)
+index = []
+for gdir in sorted(DATA_DIR.iterdir()):
+df = gdir/“data.json”
+if not df.exists(): continue
+with open(df,encoding=“utf-8”) as f: g = json.load(f)
+for p in g.get(“paragraphen”,[]):
+index.append({
+“gesetz”:      g[“kuerzel”],
+“gesetzName”:  g.get(“name”, g[“kuerzel”].upper()),
+“bezeichnung”: p[“bezeichnung”],
+“titel”:       p[“titel”],
+“inhalt”:      p[“inhalt”][:500],
+})
+with open(DATA_DIR/“index.json”,“w”,encoding=“utf-8”) as f:
+json.dump(index, f, ensure_ascii=False, separators=(”,”,”:”))
+meta = {
+“generiert”: datetime.now(timezone.utc).isoformat(),
+“anzahl_eintraege”: len(index),
+“gesetze”: sorted({e[“gesetz”] for e in index}),
+}
+with open(DATA_DIR/“meta.json”,“w”,encoding=“utf-8”) as f:
+json.dump(meta, f, ensure_ascii=False, indent=2)
+print(f”  ✓ {len(index)} Paragraphen · {len(meta[‘gesetze’])} Gesetze”)
 
 def main():
-    parser = argparse.ArgumentParser(description="Gesetze-Scraper")
-    parser.add_argument("--gesetz", help="Nur dieses Gesetz laden (Kürzel, z.B. bgb)")
-    parser.add_argument("--all",    action="store_true", help="Alle ~6000 Gesetze")
-    parser.add_argument("--no-index", action="store_true", help="Kein Index aufbauen")
-    args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument(”–gesetz”)
+parser.add_argument(”–all”,    action=“store_true”)
+parser.add_argument(”–test”,   action=“store_true”, help=“Nur GG+BGB+StGB”)
+parser.add_argument(”–no-index”, action=“store_true”)
+args = parser.parse_args()
 
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+```
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+toc = load_toc()
 
-    if args.gesetz:
-        name = GESETZE_STARTER.get(args.gesetz, args.gesetz.upper())
-        fetch_gesetz(args.gesetz, name)
-    elif args.all:
-        # Gesamtliste von gesetze-im-internet.de laden
-        print("Lade Gesamtliste...")
-        data = fetch_url(f"{BASE_URL}/aktuell.html")
-        if data:
-            links = re.findall(r'/([a-z0-9_]+)/index\.html', data.decode("utf-8", errors="ignore"))
-            gesetze_all = {k: k.upper() for k in set(links)}
-            print(f"  {len(gesetze_all)} Gesetze gefunden")
-            for i, (k, n) in enumerate(gesetze_all.items(), 1):
-                print(f"[{i}/{len(gesetze_all)}]", end=" ")
-                fetch_gesetz(k, n)
-                time.sleep(0.5)  # Höflich gegenüber dem Server
-    else:
-        # Standard: Starter-Set
-        ok = 0
-        for i, (kuerzel, name) in enumerate(GESETZE_STARTER.items(), 1):
-            print(f"[{i}/{len(GESETZE_STARTER)}]", end=" ")
-            if fetch_gesetz(kuerzel, name):
-                ok += 1
-            time.sleep(0.3)
-        print(f"\n✓ {ok}/{len(GESETZE_STARTER)} Gesetze erfolgreich geladen")
+if args.test:
+    auswahl = TEST_SET
+    print(f"\n[Test: {len(auswahl)} Gesetze]\n")
+elif args.gesetz:
+    auswahl = [args.gesetz.upper()]
+elif args.all:
+    auswahl = list(toc.keys())
+    print(f"\n[Alle: {len(auswahl)} Gesetze]\n")
+else:
+    auswahl = STARTER
+    print(f"\n[Starter: {len(auswahl)} Gesetze]\n")
 
-    if not args.no_index:
-        build_index()
+ok = sum(
+    fetch_gesetz(k, toc.get(k.upper(), f"{BASE_URL}/{k.lower()}/xml.zip"))
+    for k in auswahl
+    if not time.sleep(0.3)
+)
+print(f"\n✓ {ok}/{len(auswahl)} erfolgreich")
+if not args.no_index:
+    build_index()
+```
 
-if __name__ == "__main__":
-    main()
+if **name** == “**main**”:
+main()
