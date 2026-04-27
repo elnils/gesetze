@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 “””
-Schneller Gesetze-Scraper – fertig in 1-2 Minuten
+Schnellers Gesetze-Scraper – fertig in 1-2 Minuten
 Nutzt gii-toc.xml von gesetze-im-internet.de
 
 Verwendung:
