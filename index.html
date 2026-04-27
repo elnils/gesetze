@@ -4,130 +4,251 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gesetze.de – Deutsches Recht</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    :root{--ink:#1a1a18;--ink-2:#4a4a42;--ink-3:#8a8a7a;--paper:#f5f2eb;--paper-2:#ede9de;--paper-3:#e2ddd0;--accent:#c0392b;--gold:#9a7d3a;--border:rgba(26,26,24,.12);--shadow:0 2px 20px rgba(26,26,24,.09);--serif:"Source Serif 4",Georgia,serif;--display:"Playfair Display",serif;--mono:"IBM Plex Mono",monospace}
+    :root {
+      --ink:#1e2024;--ink-2:#4b5563;--ink-3:#9ca3af;
+      --paper:#f8f9fa;--paper-2:#f1f3f5;--paper-3:#e9ecef;
+      --accent:#2563eb;--accent-h:#1d4ed8;--accent-light:#eff6ff;
+      --gold:#b45309;--gold-light:#fef3c7;
+      --green:#059669;--green-light:#ecfdf5;
+      --red:#dc2626;--red-light:#fef2f2;
+      --border:#e5e7eb;--border-2:#d1d5db;
+      --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);
+      --shadow-lg:0 4px 24px rgba(0,0,0,.12);
+      --radius:10px;--radius-sm:6px;
+      --serif:"Lora",Georgia,serif;
+      --sans:"Inter",system-ui,sans-serif;
+      --mono:"IBM Plex Mono",monospace;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--serif);background:var(--paper);color:var(--ink);min-height:100vh;font-size:16px;line-height:1.7}
-    header{border-bottom:2px solid var(--ink);padding:1.4rem 0 1.2rem;text-align:center;position:relative}
-    header::before{content:"";display:block;height:4px;background:var(--accent);position:absolute;top:0;left:0;right:0}
-    .eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.4rem}
-    h1{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.6rem);font-weight:600;letter-spacing:-.02em}
-    h1 span{color:var(--accent)}
-    #status{font-family:var(--mono);font-size:.65rem;color:var(--ink-3);margin-top:.3rem}
-    main{max-width:860px;margin:0 auto;padding:1.8rem 1.25rem 4rem}
-    .sbar{display:flex;align-items:stretch;border:2px solid var(--ink);background:#fff;box-shadow:var(--shadow);transition:border-color .2s;margin-bottom:.6rem}
-    .sbar:focus-within{border-color:var(--accent)}
-    .sicon{display:flex;align-items:center;padding:0 1rem;font-size:1.2rem;color:var(--ink-3)}
-    #qinput{flex:1;padding:.85rem .5rem;font-family:var(--serif);font-size:1rem;border:none;outline:none;background:transparent;color:var(--ink)}
-    #qinput::placeholder{color:var(--ink-3);font-style:italic}
-    .sactions{display:flex;align-items:center;gap:.3rem;padding:.4rem .5rem}
-    .mbtn{padding:.4rem .85rem;font-family:var(--mono);font-size:.72rem;border:1.5px solid var(--border);background:var(--paper-2);cursor:pointer;transition:all .15s;color:var(--ink-2)}
-    .mbtn.son{background:var(--gold);color:#fff;border-color:var(--gold)}
-    .mbtn.seon{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-    #sbtn{padding:.4rem .9rem;font-family:var(--mono);font-size:.72rem;border:none;background:var(--accent);color:#fff;cursor:pointer}
-    #sbtn:hover{background:#a93226}
-    #sbtn:disabled{opacity:.4;cursor:default}
-    .smeta{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);margin-bottom:1.2rem}
-    .frow{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.4rem}
-    .chip{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;padding:.28rem .75rem;border:1px solid var(--border);background:var(--paper-2);cursor:pointer;transition:all .15s;user-select:none}
-    .chip:hover{background:var(--paper-3)}
-    .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-    #aibox{display:none;border:2px solid var(--gold);background:#fff;margin-bottom:1.5rem;box-shadow:var(--shadow)}
+    body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6}
+
+    /* ── Header ── */
+    header{background:#fff;border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .logo{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:.4rem}
+    .logo span{color:var(--accent)}
+    .logo-sub{font-family:var(--mono);font-size:.65rem;color:var(--ink-3);margin-top:.1rem}
+    #status{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);text-align:right}
+
+    /* ── Layout ── */
+    .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 57px)}
+    @media(max-width:768px){.layout{grid-template-columns:1fr}}
+
+    /* ── Sidebar ── */
+    aside{background:#fff;border-right:1px solid var(--border);padding:1.2rem;overflow-y:auto;height:calc(100vh - 57px);position:sticky;top:57px}
+    @media(max-width:768px){aside{display:none}}
+    .aside-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+    .frow{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:1.2rem}
+    .chip{font-family:var(--mono);font-size:.68rem;padding:.25rem .65rem;border:1px solid var(--border);background:var(--paper-2);cursor:pointer;transition:all .15s;border-radius:20px;color:var(--ink-2)}
+    .chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+    .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .aside-examples{margin-top:.4rem}
+    .ex-item{font-size:.82rem;color:var(--ink-2);padding:.4rem .5rem;cursor:pointer;border-radius:var(--radius-sm);transition:background .15s;line-height:1.4}
+    .ex-item:hover{background:var(--paper-2);color:var(--accent)}
+    .ex-item::before{content:"→ ";color:var(--ink-3);font-size:.75rem}
+
+    /* ── Main ── */
+    main{padding:1.4rem;max-width:760px}
+
+    /* ── Search Bar ── */
+    .searchbox{background:#fff;border:1.5px solid var(--border-2);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:.8rem;transition:border-color .2s,box-shadow .2s}
+    .searchbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+    .search-top{display:flex;align-items:center}
+    .sicon{padding:0 .8rem;color:var(--ink-3);font-size:1.1rem;flex-shrink:0}
+    #qinput{flex:1;padding:.8rem .4rem;font-family:var(--sans);font-size:.97rem;border:none;outline:none;background:transparent;color:var(--ink)}
+    #qinput::placeholder{color:var(--ink-3)}
+    .search-bottom{display:flex;align-items:center;justify-content:space-between;padding:.4rem .8rem .5rem;border-top:1px solid var(--border);background:var(--paper-2)}
+    .mode-toggle{display:flex;gap:.3rem;align-items:center}
+    .mtog-label{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);margin-right:.3rem}
+    .mtog{display:flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none}
+    .mtog input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+    .mtog span{font-family:var(--mono);font-size:.72rem;color:var(--ink-2)}
+    .search-actions{display:flex;gap:.4rem}
+    .sbtn{padding:.35rem .9rem;font-family:var(--mono);font-size:.72rem;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .15s}
+    .sbtn-primary{background:var(--accent);color:#fff}
+    .sbtn-primary:hover{background:var(--accent-h)}
+    .sbtn-primary:disabled{opacity:.4;cursor:default}
+    .sbtn-ghost{background:var(--paper-3);color:var(--ink-2);border:1px solid var(--border)}
+    .sbtn-ghost:hover{background:var(--border)}
+    .smeta{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);margin-bottom:1rem}
+
+    /* ── KI Antwort ── */
+    #aibox{display:none;background:#fff;border:1.5px solid var(--accent);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:1.2rem;overflow:hidden}
     #aibox.on{display:block}
-    .aihead{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;border-bottom:1px solid rgba(154,125,58,.2);background:rgba(154,125,58,.06)}
-    .ailabel{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:.5rem}
-    .ailabel::before{content:"";display:inline-block;width:7px;height:7px;background:var(--gold);border-radius:50%}
-    .ailabel.thinking::before{animation:pulse .8s infinite}
+    .ai-head{display:flex;justify-content:space-between;align-items:center;padding:.65rem 1rem;background:var(--accent-light);border-bottom:1px solid rgba(37,99,235,.15)}
+    .ai-badge{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:500;display:flex;align-items:center;gap:.4rem}
+    .ai-badge::before{content:"";width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block}
+    .ai-badge.thinking::before{animation:pulse .8s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    .aiclear{font-family:var(--mono);font-size:.68rem;background:none;border:1px solid var(--border);padding:.2rem .6rem;cursor:pointer;color:var(--ink-3)}
-    .aiclear:hover{background:var(--ink);color:var(--paper)}
-    #aimsgs{padding:1rem;max-height:420px;overflow-y:auto}
-    .msg{margin-bottom:1rem}
-    .msg.user{font-size:.9rem;color:var(--ink-2);font-style:italic;padding:.5rem .8rem;background:var(--paper-2);border-left:3px solid var(--ink-3)}
-    .msg.ai{font-size:.93rem;color:var(--ink);line-height:1.75;border-left:3px solid var(--gold);padding:.5rem .8rem;background:rgba(154,125,58,.04)}
-    .msg.err{border-left-color:var(--accent)}
-    .srcs{margin-top:.7rem;padding-top:.6rem;border-top:1px solid rgba(154,125,58,.2);font-family:var(--mono);font-size:.68rem;color:var(--ink-3)}
-    .stag{display:inline-block;margin:.15rem .2rem;padding:.15rem .5rem;background:var(--paper-2);border:1px solid var(--border);cursor:pointer}
-    .stag:hover{background:var(--ink);color:var(--paper)}
-    .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+    .ai-actions{display:flex;gap:.4rem}
+    .icon-btn{background:none;border:1px solid var(--border);padding:.25rem .5rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.75rem;color:var(--ink-3);transition:all .15s;font-family:var(--mono)}
+    .icon-btn:hover{background:var(--paper-3);color:var(--ink)}
+    #aimsgs{padding:1rem 1.1rem;max-height:500px;overflow-y:auto}
+    .msg{margin-bottom:.9rem;animation:fadein .2s ease}
+    @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .msg.user{font-size:.88rem;color:var(--ink-2);font-style:italic;padding:.5rem .8rem;background:var(--paper-2);border-left:3px solid var(--ink-3);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+    .msg.ai{font-size:.92rem;color:var(--ink);line-height:1.8}
+    .msg.ai p{margin-bottom:.5rem}
+    .msg.ai strong{color:var(--ink);font-weight:600}
+    .msg.err{color:var(--red);font-size:.88rem;padding:.5rem .8rem;background:var(--red-light);border-left:3px solid var(--red);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+    .srcs{margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border)}
+    .srcs-label{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:.4rem}
+    .stag{display:inline-block;margin:.15rem .2rem;padding:.2rem .55rem;background:var(--accent-light);border:1px solid rgba(37,99,235,.2);border-radius:20px;cursor:pointer;font-family:var(--mono);font-size:.68rem;color:var(--accent);transition:all .12s}
+    .stag:hover{background:var(--accent);color:#fff}
+    .spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .ritem{border-top:1px solid var(--border);padding:1.1rem 0;cursor:pointer;display:grid;grid-template-columns:auto 1fr;gap:.5rem 1rem;transition:all .15s}
-    .ritem:hover{background:var(--paper-2);padding-left:.7rem;margin-left:-.7rem}
-    .rnorm{font-family:var(--mono);font-size:.8rem;font-weight:500;color:var(--accent);white-space:nowrap;padding-top:.1rem}
-    .rtitle{font-size:.97rem;color:var(--ink)}
-    .rlaw{font-family:var(--mono);font-size:.65rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;grid-column:2}
-    .rempty{text-align:center;padding:3.5rem 1rem;color:var(--ink-3)}
-    .rempty .big{font-size:2rem;margin-bottom:.5rem}
-    .hints{margin-top:1.2rem;display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}
-    .hchip{font-family:var(--mono);font-size:.7rem;padding:.3rem .8rem;border:1px solid var(--border);background:var(--paper-2);cursor:pointer;color:var(--ink-2)}
-    .hchip:hover{background:var(--gold);color:#fff;border-color:var(--gold)}
-    #panel{display:none;position:fixed;right:0;top:0;bottom:0;width:min(520px,100vw);background:#fff;border-left:2px solid var(--ink);z-index:100;flex-direction:column;box-shadow:-4px 0 32px rgba(26,26,24,.12)}
+    .ai-followup{padding:.6rem 1rem;border-top:1px solid var(--border);display:flex;gap:.4rem}
+    #followup{flex:1;font-family:var(--sans);font-size:.88rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .7rem;outline:none;background:var(--paper)}
+    #followup:focus{border-color:var(--accent)}
+    #followup::placeholder{color:var(--ink-3)}
+
+    /* ── Ergebnisse ── */
+    .ritem{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:.5rem;cursor:pointer;transition:all .15s;display:grid;grid-template-columns:auto 1fr;gap:.4rem .9rem}
+    .ritem:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-1px)}
+    .rnorm{font-family:var(--mono);font-size:.78rem;font-weight:500;color:var(--accent);white-space:nowrap;padding-top:.1rem}
+    .rtitle{font-size:.93rem;font-weight:500;color:var(--ink)}
+    .rlaw{font-family:var(--mono);font-size:.63rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;grid-column:2;margin-top:.1rem}
+
+    /* ── Panel ── */
+    #panel{display:none;position:fixed;right:0;top:0;bottom:0;width:min(540px,100vw);background:#fff;border-left:1px solid var(--border);z-index:200;flex-direction:column;box-shadow:var(--shadow-lg)}
     #panel.on{display:flex}
-    .phead{padding:1.1rem 1.3rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
-    .pnorm{font-family:var(--display);font-size:1.4rem;font-weight:600;color:var(--accent)}
-    .ptitle{font-size:.9rem;color:var(--ink-2);margin-top:.2rem}
-    .pclose{background:none;border:1.5px solid var(--border);padding:.3rem .7rem;cursor:pointer;font-family:var(--mono);font-size:.72rem;color:var(--ink-2)}
-    .pclose:hover{background:var(--ink);color:var(--paper)}
-    .pbody{flex:1;overflow-y:auto;padding:1.3rem}
-    .ptext{font-size:.92rem;line-height:1.85;color:var(--ink);white-space:pre-wrap;border-left:3px solid var(--paper-3);padding-left:1rem;margin-bottom:1rem}
-    .paskbtn{width:100%;padding:.6rem;font-family:var(--mono);font-size:.75rem;background:var(--gold);color:#fff;border:none;cursor:pointer}
-    .paskbtn:hover{background:#7d6430}
-    @media(max-width:600px){#panel{width:100vw;border-left:none;top:auto;height:80vh;border-top:2px solid var(--ink)}}
+    .poverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199}
+    .poverlay.on{display:block}
+    .phead{padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;background:#fff}
+    .pnorm{font-family:var(--serif);font-size:1.3rem;font-weight:600;color:var(--accent)}
+    .ptitle{font-size:.88rem;color:var(--ink-2);margin-top:.2rem}
+    .pbadge{font-family:var(--mono);font-size:.63rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-top:.3rem}
+    .pclose{background:none;border:1px solid var(--border);padding:.3rem .65rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.8rem;color:var(--ink-3);flex-shrink:0}
+    .pclose:hover{background:var(--paper-3)}
+    .pbody{flex:1;overflow-y:auto;padding:1.2rem}
+    .ptext{font-family:var(--serif);font-size:.93rem;line-height:1.9;color:var(--ink);white-space:pre-wrap;margin-bottom:1.2rem}
+    .pactions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .pact-btn{padding:.45rem .9rem;font-family:var(--mono);font-size:.72rem;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .15s}
+    .pact-primary{background:var(--accent);color:#fff}
+    .pact-primary:hover{background:var(--accent-h)}
+    .pact-secondary{background:var(--paper-3);color:var(--ink-2);border:1px solid var(--border)}
+    .pact-secondary:hover{background:var(--border-2)}
+
+    /* ── Empty ── */
+    .rempty{text-align:center;padding:3rem 1rem;color:var(--ink-3)}
+    .rempty .big{font-size:2.5rem;margin-bottom:.5rem;opacity:.3}
+    .rempty p{font-size:.9rem;color:var(--ink-3)}
+
+    /* ── Toast ── */
+    #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:#fff;padding:.5rem 1.2rem;border-radius:20px;font-family:var(--mono);font-size:.75rem;transition:transform .25s;z-index:999;pointer-events:none}
+    #toast.show{transform:translateX(-50%) translateY(0)}
   </style>
 </head>
 <body>
+
 <header>
-  <div class="eyebrow">Deutsches &amp; Europäisches Recht</div>
-  <h1>Gesetze<span>.</span>Repo</h1>
-  <div id="status">Lade…</div>
+  <div>
+    <div class="logo">Gesetze<span>.</span>Repo</div>
+    <div class="logo-sub">Deutsches &amp; Europäisches Recht</div>
+  </div>
+  <div id="status">Lade Index…</div>
 </header>
-<main>
-  <div style="margin-top:1.6rem">
-    <div class="sbar">
-      <div class="sicon">⌕</div>
-      <input type="text" id="qinput" placeholder="Rechtsfrage stellen oder Paragraph suchen…" autocomplete="off" spellcheck="false">
-      <div class="sactions">
-        <button class="mbtn" id="mbtn-s" onclick="setMode('s')">Suche</button>
-        <button class="mbtn son" id="mbtn-a" onclick="setMode('a')">KI</button>
-        <button id="sbtn" onclick="go()">→</button>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside>
+    <div class="aside-title">Gesetze filtern</div>
+    <div class="frow" id="frow"></div>
+
+    <div class="aside-title" style="margin-top:.4rem">Beispielfragen</div>
+    <div class="aside-examples">
+      <div class="ex-item" onclick="ex(this)">Wann hafte ich für Schäden?</div>
+      <div class="ex-item" onclick="ex(this)">Kündigungsschutz Arbeitnehmer</div>
+      <div class="ex-item" onclick="ex(this)">GmbH Geschäftsführer Haftung</div>
+      <div class="ex-item" onclick="ex(this)">Datenschutz Einwilligung DSGVO</div>
+      <div class="ex-item" onclick="ex(this)">Mietminderung Voraussetzungen</div>
+      <div class="ex-item" onclick="ex(this)">Urheberrecht KI-generierte Werke</div>
+      <div class="ex-item" onclick="ex(this)">Wettbewerbsrecht Abmahnung</div>
+      <div class="ex-item" onclick="ex(this)">Insolvenz Antragsfristen</div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main>
+
+    <div class="searchbox">
+      <div class="search-top">
+        <div class="sicon">⌕</div>
+        <input type="text" id="qinput"
+          placeholder="Paragraph suchen oder Rechtsfrage stellen…"
+          autocomplete="off" spellcheck="false">
+      </div>
+      <div class="search-bottom">
+        <div class="mode-toggle">
+          <span class="mtog-label">Modus:</span>
+          <label class="mtog">
+            <input type="checkbox" id="ai-toggle" checked onchange="toggleMode()">
+            <span id="mode-label">KI-Modus aktiv</span>
+          </label>
+        </div>
+        <div class="search-actions">
+          <button class="sbtn sbtn-ghost" onclick="clearAll()">Leeren</button>
+          <button class="sbtn sbtn-primary" id="sbtn" onclick="go()">Suchen →</button>
+        </div>
       </div>
     </div>
+
     <div class="smeta"><span id="rcount">–</span> &nbsp; <span id="istats"></span></div>
-  </div>
-  <div class="frow" id="frow"></div>
-  <div id="aibox">
-    <div class="aihead">
-      <div class="ailabel" id="ailabel">KI-Assistent · Groq</div>
-      <button class="aiclear" onclick="clearChat()">✕ Löschen</button>
-    </div>
-    <div id="aimsgs"></div>
-  </div>
-  <div id="results">
-    <div class="rempty">
-      <div class="big">§</div>
-      <p>Stelle eine Rechtsfrage oder suche nach Paragraphen.</p>
-      <div class="hints">
-        <span class="hchip" onclick="ex(this)">Wann hafte ich für Schäden?</span>
-        <span class="hchip" onclick="ex(this)">Kündigungsschutz Arbeitnehmer</span>
-        <span class="hchip" onclick="ex(this)">§ 823 BGB</span>
-        <span class="hchip" onclick="ex(this)">Datenschutz Einwilligung</span>
-        <span class="hchip" onclick="ex(this)">GmbH Geschäftsführer Haftung</span>
-        <span class="hchip" onclick="ex(this)">Mietminderung Voraussetzungen</span>
+
+    <!-- KI Antwort -->
+    <div id="aibox">
+      <div class="ai-head">
+        <div class="ai-badge" id="aibadge">KI-Assistent · Groq llama-3.3</div>
+        <div class="ai-actions">
+          <button class="icon-btn" onclick="copyAnswer()" title="Antwort kopieren">⎘ Kopieren</button>
+          <button class="icon-btn" onclick="saveAnswer()" title="Als Textdatei speichern">↓ Speichern</button>
+          <button class="icon-btn" onclick="clearChat()">✕</button>
+        </div>
+      </div>
+      <div id="aimsgs"></div>
+      <div class="ai-followup">
+        <input type="text" id="followup" placeholder="Folgefrage stellen…">
+        <button class="sbtn sbtn-primary" id="fubtn" onclick="followUp()">→</button>
       </div>
     </div>
-  </div>
-</main>
+
+    <!-- Ergebnisse -->
+    <div id="results">
+      <div class="rempty">
+        <div class="big">§</div>
+        <p>Suche nach Paragraphen oder stelle eine Rechtsfrage.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Panel Overlay -->
+<div class="poverlay" id="overlay" onclick="closeP()"></div>
+
+<!-- Detail Panel -->
 <div id="panel">
   <div class="phead">
-    <div><div class="pnorm" id="pnorm">–</div><div class="ptitle" id="ptitle">–</div></div>
-    <button class="pclose" onclick="closeP()">✕</button>
+    <div>
+      <div class="pnorm" id="pnorm">–</div>
+      <div class="ptitle" id="ptitle">–</div>
+      <div class="pbadge" id="pbadge">–</div>
+    </div>
+    <button class="pclose" onclick="closeP()">✕ Schließen</button>
   </div>
   <div class="pbody">
     <div class="ptext" id="ptext">Lädt…</div>
-    <button class="paskbtn" onclick="askCurrent()">Diese Norm mit KI erklären →</button>
+    <div class="pactions">
+      <button class="pact-btn pact-primary" onclick="askCurrent()">Mit KI erklären →</button>
+      <button class="pact-btn pact-secondary" onclick="copyPanel()">⎘ Text kopieren</button>
+    </div>
   </div>
 </div>
+
+<!-- Toast -->
+<div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
 <script>
@@ -135,12 +256,11 @@ const WORKER = "https://ki-gesetze.tageslage.workers.dev";
 const MODEL  = "llama-3.3-70b-versatile";
 const DATA   = "data/";
 
-let fuse, indexData=[], searchData=[], mode="a", filter=null, history=[], curItem=null;
+let fuse, indexData=[], searchData=[], aiMode=true, filter=null, history=[], curItem=null, lastAnswer="", lastQ="";
 
-// ── Laden ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    // index.json (klein, nur Bezeichnung+Titel) und meta.json parallel laden
     const [idxR, metaR] = await Promise.all([
       fetch(DATA+"index.json"),
       fetch(DATA+"meta.json"),
@@ -148,7 +268,6 @@ async function init() {
     if (!idxR.ok) throw new Error("index.json nicht gefunden");
     indexData = await idxR.json();
 
-    // Fuse.js mit kurzem Index aufbauen
     fuse = new Fuse(indexData, {
       keys:[{name:"bezeichnung",weight:2.5},{name:"titel",weight:1.8},{name:"gesetzName",weight:.5}],
       threshold:0.35, includeMatches:true, minMatchCharLength:2,
@@ -156,171 +275,195 @@ async function init() {
 
     const meta = await metaR.json();
     document.getElementById("status").textContent =
-      "Stand: " + new Date(meta.generiert).toLocaleDateString("de-DE",
-        {day:"2-digit",month:"long",year:"numeric"});
+      "Stand: " + new Date(meta.generiert).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
     document.getElementById("istats").textContent =
-      `${meta.anzahl_eintraege.toLocaleString("de")} Paragraphen · ${meta.gesetze.length} Gesetze`;
+      `${meta.anzahl_eintraege.toLocaleString("de")} §§ · ${meta.gesetze.length} Gesetze`;
     buildChips(meta.gesetze);
     document.getElementById("rcount").textContent = "Bereit";
 
-    // search.json (mit Inhalt für KI) im Hintergrund nachladen
-    fetch(DATA+"search.json").then(r=>r.json()).then(d=>{ searchData=d; });
-
+    // search.json im Hintergrund
+    fetch(DATA+"search.json").then(r=>r.json()).then(d=>{ searchData=d; }).catch(()=>{});
   } catch(e) {
     document.getElementById("status").textContent = "Fehler: " + e.message;
-    console.error(e);
   }
 }
 
 // ── Modus ─────────────────────────────────────────────────────────────────────
-function setMode(m) {
-  mode = m;
-  document.getElementById("mbtn-s").className = "mbtn" + (m==="s"?" seon":"");
-  document.getElementById("mbtn-a").className = "mbtn" + (m==="a"?" son":"");
-  document.getElementById("qinput").placeholder = m==="a"
+function toggleMode() {
+  aiMode = document.getElementById("ai-toggle").checked;
+  document.getElementById("mode-label").textContent = aiMode ? "KI-Modus aktiv" : "Nur Suche";
+  document.getElementById("qinput").placeholder = aiMode
     ? "Rechtsfrage stellen… z.B. \"Wann hafte ich als Geschäftsführer?\""
     : "Paragraph suchen… z.B. § 823 oder Kündigung";
-  document.getElementById("qinput").focus();
 }
 
-function go() {
-  const q = document.getElementById("qinput").value.trim();
-  if (!q) return;
-  mode==="a" ? askAI(q) : doSearch(q);
-}
-
+// ── Input Events ──────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("qinput").addEventListener("keydown", e=>{
-    if(e.key==="Enter"){e.preventDefault();go();}
+    if(e.key==="Enter"){e.preventDefault(); go();}
     if(e.key==="Escape") closeP();
   });
   document.getElementById("qinput").addEventListener("input", e=>{
-    if(mode==="s") doSearch(e.target.value);
+    if(!aiMode) doSearch(e.target.value);
+  });
+  document.getElementById("followup").addEventListener("keydown", e=>{
+    if(e.key==="Enter"){e.preventDefault(); followUp();}
   });
 });
 
+function go() {
+  const q = document.getElementById("qinput").value.trim();
+  if(!q) return;
+  // Immer Suchergebnisse zeigen
+  doSearch(q);
+  // Zusätzlich KI wenn Modus aktiv
+  if(aiMode) askAI(q);
+}
+
 function ex(el) {
-  document.getElementById("qinput").value = el.textContent;
-  setMode("a"); askAI(el.textContent);
+  document.getElementById("qinput").value = el.textContent.replace(/^→\s*/,"");
+  document.getElementById("ai-toggle").checked = true;
+  aiMode = true;
+  go();
+}
+
+function clearAll() {
+  document.getElementById("qinput").value="";
+  clearChat();
+  document.getElementById("results").innerHTML=`<div class="rempty"><div class="big">§</div><p>Suche nach Paragraphen oder stelle eine Rechtsfrage.</p></div>`;
+  document.getElementById("rcount").textContent="–";
+  filter=null;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
 }
 
 // ── Filter Chips ──────────────────────────────────────────────────────────────
-const LABELS={gg:"GG",bgb:"BGB",stgb:"StGB",hgb:"HGB",bdsg_2018:"BDSG",estg:"EStG",uwg:"UWG",gwb:"GWB",urhg:"UrhG"};
+const LABELS={gg:"GG",bgb:"BGB",stgb:"StGB",hgb:"HGB",bdsg_2018:"BDSG",estg:"EStG",uwg:"UWG",gwb:"GWB",urhg:"UrhG",inso:"InsO",zpo:"ZPO",stpo:"StPO"};
 function buildChips(gesetze) {
-  const prio = Object.keys(LABELS);
-  const sorted = [...prio.filter(g=>gesetze.includes(g)), ...gesetze.filter(g=>!prio.includes(g)).sort()];
-  document.getElementById("frow").innerHTML = sorted.slice(0,14).map(g=>
+  const prio=Object.keys(LABELS);
+  const sorted=[...prio.filter(g=>gesetze.includes(g)),...gesetze.filter(g=>!prio.includes(g)).sort()];
+  document.getElementById("frow").innerHTML=sorted.slice(0,20).map(g=>
     `<button class="chip" onclick="toggleF('${g}',this)">${LABELS[g]||g.toUpperCase()}</button>`
   ).join("");
 }
 function toggleF(g,el) {
-  filter = filter===g ? null : g;
+  filter=filter===g?null:g;
   document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
   if(filter) el.classList.add("on");
-  const q = document.getElementById("qinput").value.trim();
+  const q=document.getElementById("qinput").value.trim();
   if(q||filter) doSearch(q);
 }
 
 // ── Suche ─────────────────────────────────────────────────────────────────────
 function doSearch(q) {
   if(!fuse) return;
-  if(!q&&!filter){showEmpty();return;}
+  if(!q&&!filter) return;
   let res = q
-    ? fuse.search(q,{limit:80}).map(r=>r.item)
+    ? fuse.search(q,{limit:100}).map(r=>r.item)
     : indexData;
-  if(filter) res = res.filter(r=>r.g===filter);
-  document.getElementById("rcount").textContent = `${res.length} Treffer`;
+  if(filter) res=res.filter(r=>r.gesetz===filter);
+  document.getElementById("rcount").textContent=`${res.length} Treffer`;
   document.getElementById("results").innerHTML = res.length
     ? res.slice(0,60).map(item=>`
         <div class="ritem" onclick='openP(${JSON.stringify(item).replace(/'/g,"&#39;")})'>
           <div class="rnorm">${item.bezeichnung}</div>
           <div>
-            <div class="rtitle">${item.titel||"<em>–</em>"}</div>
-            <div class="rlaw">${item.gesetzName||item.gesetz.toUpperCase()}</div>
+            <div class="rtitle">${item.titel||"<em style='color:var(--ink-3)'>–</em>"}</div>
+            <div class="rlaw">${item.gesetzName||item.gesetz?.toUpperCase()||""}</div>
           </div>
         </div>`).join("")
-    : `<div class="rempty"><p>Keine Treffer für <em>${q}</em></p></div>`;
-}
-
-function showEmpty() {
-  document.getElementById("results").innerHTML=`
-    <div class="rempty"><div class="big">§</div>
-    <p>Stelle eine Rechtsfrage oder suche nach Paragraphen.</p>
-    <div class="hints">
-      <span class="hchip" onclick="ex(this)">Wann hafte ich für Schäden?</span>
-      <span class="hchip" onclick="ex(this)">Kündigungsschutz Arbeitnehmer</span>
-      <span class="hchip" onclick="ex(this)">§ 823 BGB</span>
-      <span class="hchip" onclick="ex(this)">Datenschutz Einwilligung</span>
-      <span class="hchip" onclick="ex(this)">GmbH Geschäftsführer Haftung</span>
-      <span class="hchip" onclick="ex(this)">Mietminderung Voraussetzungen</span>
-    </div></div>`;
-  document.getElementById("rcount").textContent="–";
+    : `<div class="rempty"><p>Keine Treffer${q?" für <em>"+q+"</em>":""}</p></div>`;
 }
 
 // ── KI ────────────────────────────────────────────────────────────────────────
 function getCtx(q) {
-  // Nutze searchData wenn geladen, sonst indexData
   const data = searchData.length ? searchData : indexData;
-  if(!data.length) return {text:"",sources:[]};
-  const tmp = new Fuse(data, {keys:[{name:"bezeichnung",weight:2.5},{name:"titel",weight:1.8},{name:"inhalt",weight:1}],threshold:0.35});
+  if(!data.length||!fuse) return {text:"",sources:[]};
+  const tmp = new Fuse(data,{keys:[{name:"bezeichnung",weight:2.5},{name:"titel",weight:1.8},{name:"inhalt",weight:1}],threshold:0.35});
   const res = tmp.search(q,{limit:5});
   const sources = res.map(r=>r.item);
-  const text = sources.map(p=>
-    `${p.bezeichnung} ${p.gesetzName} – ${p.titel}\n${p.inhalt||""}`
-  ).join("\n\n---\n\n");
-  return {text, sources};
+  const text = sources.map(p=>`${p.bezeichnung} ${p.gesetzName||""} – ${p.titel||""}\n${(p.inhalt||"").slice(0,200)}`).join("\n\n---\n\n");
+  return {text,sources};
 }
 
-async function askAI(q) {
-  const box = document.getElementById("aibox");
-  const msgs = document.getElementById("aimsgs");
-  const btn = document.getElementById("sbtn");
-  const lbl = document.getElementById("ailabel");
+async function askAI(q, isFollowup=false) {
+  const box=document.getElementById("aibox");
+  const msgs=document.getElementById("aimsgs");
+  const btn=document.getElementById(isFollowup?"fubtn":"sbtn");
+  const badge=document.getElementById("aibadge");
 
   box.classList.add("on");
   btn.disabled=true;
+  lastQ=q;
+
+  if(!isFollowup) history=[];
   addMsg(q,"user");
   history.push({role:"user",content:q});
 
-  const {text:ctx, sources} = getCtx(q);
-  const sys = `Du bist ein juristischer Assistent für deutsches und europäisches Recht.
-Antworte präzise auf Deutsch. Zitiere Normen exakt (z.B. § 823 Abs. 1 BGB).
-Weise auf Rechtsunsicherheiten hin. Dies ersetzt keine Rechtsberatung (RDG).
-${ctx ? `\nRelevante Normen:\n\n${ctx}` : ""}`;
+  const {text:ctx,sources}=getCtx(q);
+  const sys=`Du bist ein juristischer Assistent für deutsches und europäisches Recht.
 
-  lbl.className="ailabel thinking";
-  lbl.textContent="KI denkt…";
-  const el = addMsg(`<span class="spinner"></span>Analysiere…`,"ai");
+Antworte strukturiert auf Deutsch:
+1. Kurze direkte Antwort (2-3 Sätze)
+2. Relevante Gesetzesnormen (exakt zitieren, z.B. § 823 Abs. 1 BGB)
+3. Wichtige Voraussetzungen oder Ausnahmen
+4. Hinweis auf relevante BGH/BVerfG-Rechtsprechung falls bekannt (z.B. BGH, Urt. v. 25.10.2022 – VI ZR 58/21)
+5. Praktischer Hinweis
+
+Formatiere die Antwort mit klaren Absätzen. Fett für wichtige Begriffe.
+Weise immer darauf hin: Dies ersetzt keine Rechtsberatung (RDG).
+${ctx?`\nRelevante Normen aus dem Index:\n\n${ctx}`:""}`;
+
+  badge.className="ai-badge thinking";
+  badge.textContent="KI analysiert…";
+  const el=addMsg(`<span class="spinner"></span>Analysiere relevante Normen…`,"ai");
 
   try {
-    const r = await fetch(WORKER,{
+    const r=await fetch(WORKER,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        model:MODEL, max_tokens:1024, temperature:0.25,
-        messages:[{role:"system",content:sys},...history.slice(-6)],
+        model:MODEL, max_tokens:1024, temperature:0.2,
+        messages:[{role:"system",content:sys},...history.slice(-8)],
       }),
     });
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
-    const ans = d.choices?.[0]?.message?.content || "(keine Antwort)";
-    let html = ans.replace(/\n/g,"<br>");
+    if(!r.ok) {
+      const err=await r.json().catch(()=>({}));
+      throw new Error(err.error?.message||`HTTP ${r.status}`);
+    }
+    const d=await r.json();
+    const ans=d.choices?.[0]?.message?.content||"(keine Antwort)";
+    lastAnswer=ans;
+
+    // Markdown-ähnliches Rendering
+    let html=ans
+      .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+      .replace(/\n\n/g,"</p><p>")
+      .replace(/\n/g,"<br>");
+    html=`<p>${html}</p>`;
+
     if(sources.length) {
-      html += `<div class="srcs">Normen: ${sources.map(s=>
-        `<span class="stag" onclick='openP(${JSON.stringify(s).replace(/'/g,"&#39;")})'>${s.bezeichnung} ${s.gesetz.toUpperCase()}</span>`
-      ).join("")}</div>`;
+      html+=`<div class="srcs"><div class="srcs-label">Verwendete Normen</div>${
+        sources.map(s=>`<span class="stag" onclick='openP(${JSON.stringify(s).replace(/'/g,"&#39;")})'>${s.bezeichnung} ${(s.gesetz||"").toUpperCase()}</span>`).join("")
+      }</div>`;
     }
     el.className="msg ai"; el.innerHTML=html;
     history.push({role:"assistant",content:ans});
-    if(fuse) doSearch(q);
+
   } catch(e) {
-    el.className="msg ai err"; el.textContent="Fehler: "+e.message;
+    el.className="msg err"; el.textContent="Fehler: "+e.message;
   } finally {
     btn.disabled=false;
-    lbl.className="ailabel"; lbl.textContent="KI-Assistent · Groq";
-    document.getElementById("qinput").value="";
+    badge.className="ai-badge";
+    badge.textContent="KI-Assistent · Groq llama-3.3";
+    if(isFollowup) document.getElementById("followup").value="";
     msgs.scrollTop=msgs.scrollHeight;
   }
+}
+
+function followUp() {
+  const q=document.getElementById("followup").value.trim();
+  if(!q) return;
+  askAI(q,true);
 }
 
 function addMsg(html,role) {
@@ -330,38 +473,81 @@ function addMsg(html,role) {
   msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
   return el;
 }
-function clearChat(){history=[];document.getElementById("aimsgs").innerHTML="";document.getElementById("aibox").classList.remove("on");showEmpty();}
+
+function clearChat() {
+  history=[];
+  document.getElementById("aimsgs").innerHTML="";
+  document.getElementById("aibox").classList.remove("on");
+}
+
+// ── Kopieren & Speichern ──────────────────────────────────────────────────────
+function copyAnswer() {
+  if(!lastAnswer) return;
+  navigator.clipboard.writeText(lastAnswer).then(()=>toast("Antwort kopiert!"));
+}
+
+function saveAnswer() {
+  if(!lastAnswer) return;
+  const blob=new Blob([`Frage: ${lastQ}\n\n${lastAnswer}`],{type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`rechtsfrage-${Date.now()}.txt`;
+  a.click();
+  toast("Gespeichert!");
+}
+
+function copyPanel() {
+  const text=document.getElementById("ptext").textContent;
+  const norm=document.getElementById("pnorm").textContent;
+  navigator.clipboard.writeText(`${norm}\n\n${text}`).then(()=>toast("Text kopiert!"));
+}
+
+function toast(msg) {
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
+}
 
 // ── Detail Panel ──────────────────────────────────────────────────────────────
 async function openP(item) {
   curItem=item;
-  document.getElementById("pnorm").textContent=`${item.bezeichnung} ${item.gesetzName||item.gesetz.toUpperCase()}`;
+  document.getElementById("pnorm").textContent=`${item.bezeichnung}`;
   document.getElementById("ptitle").textContent=item.titel||"";
+  document.getElementById("pbadge").textContent=item.gesetzName||item.gesetz?.toUpperCase()||"";
   document.getElementById("ptext").textContent="Lädt…";
   document.getElementById("panel").classList.add("on");
+  document.getElementById("overlay").classList.add("on");
 
-  // Volltext aus data/{gesetz}/data.json laden
   try {
-    const r = await fetch(`${DATA}${item.gesetz}/data.json`);
-    const d = await r.json();
-    const p = d.paragraphen?.find(p=>p.bezeichnung===item.bezeichnung);
-    document.getElementById("ptext").textContent = p?.inhalt || "(kein Volltext)";
-  } catch(e) {
-    document.getElementById("ptext").textContent = item.inhalt || "(kein Volltext)";
+    const r=await fetch(`${DATA}${item.gesetz}/data.json`);
+    if(!r.ok) throw new Error();
+    const d=await r.json();
+    const p=d.paragraphen?.find(p=>p.bezeichnung===item.bezeichnung);
+    document.getElementById("ptext").textContent=p?.inhalt||(item.inhalt||"(kein Volltext verfügbar)");
+  } catch {
+    document.getElementById("ptext").textContent=item.inhalt||"(kein Volltext verfügbar)";
   }
 }
-function closeP(){document.getElementById("panel").classList.remove("on");curItem=null;}
-function askCurrent(){
+
+function closeP() {
+  document.getElementById("panel").classList.remove("on");
+  document.getElementById("overlay").classList.remove("on");
+  curItem=null;
+}
+
+function askCurrent() {
   if(!curItem) return;
-  const item = curItem;
+  const item=curItem;
   closeP();
-  const q=`Erkläre ${item.bezeichnung} ${item.gesetzName||item.gesetz} – ${item.titel}`;
+  const q=`Erkläre ${item.bezeichnung} ${item.gesetzName||item.gesetz||""} – ${item.titel||""}`;
   document.getElementById("qinput").value=q;
-  setMode("a"); askAI(q);
+  document.getElementById("ai-toggle").checked=true;
+  aiMode=true;
+  doSearch(q);
+  askAI(q);
 }
 
 init();
-setMode("a");
 </script>
 </body>
 </html>
