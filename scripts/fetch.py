@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """
-Schneller Gesetze-Scraper – fertig in 1-2 Minuten
-Nutzt gii-toc.xml von gesetze-im-internet.de
-
-Verwendung:
-  python fetch.py          # Starter-Set
-  python fetch.py --test   # Nur 3 Gesetze zum schnellen Testen
-  python fetch.py --gesetz bgb
-  python fetch.py --all
+Gesetze-Scraper für gesetze-im-internet.de
+- index.json: nur Bezeichnung + Titel + Gesetz (klein, schnell ladbar)
+- data/{gesetz}/data.json: Volltext (wird on-demand geladen)
 """
 
 import json, re, time, argparse, zipfile, io
@@ -55,7 +50,6 @@ def load_toc():
         link  = (item.findtext("link")  or item.get("link", item.get("url",""))).strip()
         if title and link:
             toc[title.upper()] = link
-    # Fallback: URLs direkt aus dem XML extrahieren
     if not toc:
         for el in root.iter():
             t = (el.text or "").strip()
@@ -76,15 +70,12 @@ def parse_xml(data, kuerzel):
                 xml_file = max(xml_files, key=lambda f: z.getinfo(f).file_size)
                 data = z.read(xml_file)
         except: pass
-
     try: root = ET.fromstring(data)
     except ET.ParseError as e:
         print(f"  ✗ XML-Fehler: {e}"); return {}
-
     tag = root.tag
     ns = tag.split("}")[0]+"}" if "{" in tag else ""
     def t(n): return f"{ns}{n}"
-
     paragraphen, meta = [], {}
     for norm in root.findall(f".//{t('norm')}"):
         md = norm.find(t("metadaten"))
@@ -107,7 +98,7 @@ def parse_xml(data, kuerzel):
         paragraphen.append({
             "bezeichnung": enbez,
             "titel":       titel,
-            "inhalt":      inhalt[:5000],
+            "inhalt":      inhalt[:3000],
         })
     return {"meta": meta, "paragraphen": paragraphen, "count": len(paragraphen)}
 
@@ -135,30 +126,57 @@ def fetch_gesetz(kuerzel, xml_url, name=""):
     return True
 
 def build_index():
-    print("\n→ Baue index.json …")
-    index = []
+    """
+    Baut ZWEI Dateien:
+    - index.json: nur Bezeichnung + Titel + Gesetz (klein, ~200KB)
+    - search.json: zusätzlich 150 Zeichen Inhalt für KI-Kontext (~1MB)
+    """
+    print("\n→ Baue Index …")
+    index = []   # klein – für Suche
+    search = []  # mittel – für KI-Kontext
+
     for gdir in sorted(DATA_DIR.iterdir()):
         df = gdir/"data.json"
         if not df.exists(): continue
         with open(df,encoding="utf-8") as f: g = json.load(f)
+        gname = g.get("name", g["kuerzel"].upper())
         for p in g.get("paragraphen",[]):
             index.append({
-                "gesetz":      g["kuerzel"],
-                "gesetzName":  g.get("name", g["kuerzel"].upper()),
-                "bezeichnung": p["bezeichnung"],
-                "titel":       p["titel"],
-                "inhalt":      p["inhalt"][:500],
+                "g": g["kuerzel"],           # gesetz (kurz)
+                "n": gname,                  # name
+                "b": p["bezeichnung"],       # bezeichnung
+                "t": p["titel"],             # titel
             })
+            search.append({
+                "g": g["kuerzel"],
+                "n": gname,
+                "b": p["bezeichnung"],
+                "t": p["titel"],
+                "i": (p["inhalt"] or "")[:150],  # inhalt gekürzt
+            })
+
+    # index.json – minimal, für Fuse.js Suche
     with open(DATA_DIR/"index.json","w",encoding="utf-8") as f:
         json.dump(index, f, ensure_ascii=False, separators=(",",":"))
+
+    # search.json – mit Inhalt, für KI-Kontext
+    with open(DATA_DIR/"search.json","w",encoding="utf-8") as f:
+        json.dump(search, f, ensure_ascii=False, separators=(",",":"))
+
     meta = {
         "generiert": datetime.now(timezone.utc).isoformat(),
         "anzahl_eintraege": len(index),
-        "gesetze": sorted({e["gesetz"] for e in index}),
+        "gesetze": sorted({e["g"] for e in index}),
     }
     with open(DATA_DIR/"meta.json","w",encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
-    print(f"  ✓ {len(index)} Paragraphen · {len(meta['gesetze'])} Gesetze")
+
+    # Größen ausgeben
+    idx_size  = (DATA_DIR/"index.json").stat().st_size / 1024
+    srch_size = (DATA_DIR/"search.json").stat().st_size / 1024
+    print(f"  ✓ index.json:  {idx_size:.0f} KB ({len(index)} Einträge)")
+    print(f"  ✓ search.json: {srch_size:.0f} KB (mit Inhalt)")
+    print(f"  ✓ {len(meta['gesetze'])} Gesetze")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -183,11 +201,14 @@ def main():
         auswahl = STARTER
         print(f"\n[Starter: {len(auswahl)} Gesetze]\n")
 
-    ok = sum(
-        fetch_gesetz(k, toc.get(k.upper(), f"{BASE_URL}/{k.lower()}/xml.zip"))
-        for k in auswahl
-        if not time.sleep(0.3)
-    )
+    ok = 0
+    for i, k in enumerate(auswahl, 1):
+        print(f"[{i}/{len(auswahl)}]", end=" ")
+        xml_url = toc.get(k.upper(), f"{BASE_URL}/{k.lower()}/xml.zip")
+        if fetch_gesetz(k, xml_url):
+            ok += 1
+        time.sleep(0.3)
+
     print(f"\n✓ {ok}/{len(auswahl)} erfolgreich")
     if not args.no_index:
         build_index()
