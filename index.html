@@ -353,8 +353,9 @@ async function openP(item) {
 function closeP(){document.getElementById("panel").classList.remove("on");curItem=null;}
 function askCurrent(){
   if(!curItem) return;
+  const item = curItem;
   closeP();
-  const q=`Erkläre ${curItem.b} ${curItem.n} – ${curItem.t}`;
+  const q=`Erkläre ${item.bezeichnung} ${item.gesetzName||item.gesetz} – ${item.titel}`;
   document.getElementById("qinput").value=q;
   setMode("a"); askAI(q);
 }
