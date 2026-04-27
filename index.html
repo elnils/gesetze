@@ -150,7 +150,7 @@ async function init() {
 
     // Fuse.js mit kurzem Index aufbauen
     fuse = new Fuse(indexData, {
-      keys:[{name:"b",weight:2.5},{name:"t",weight:1.8},{name:"n",weight:.5}],
+      keys:[{name:"bezeichnung",weight:2.5},{name:"titel",weight:1.8},{name:"gesetzName",weight:.5}],
       threshold:0.35, includeMatches:true, minMatchCharLength:2,
     });
 
@@ -233,10 +233,10 @@ function doSearch(q) {
   document.getElementById("results").innerHTML = res.length
     ? res.slice(0,60).map(item=>`
         <div class="ritem" onclick='openP(${JSON.stringify(item).replace(/'/g,"&#39;")})'>
-          <div class="rnorm">${item.b}</div>
+          <div class="rnorm">${item.bezeichnung}</div>
           <div>
-            <div class="rtitle">${item.t||"<em>–</em>"}</div>
-            <div class="rlaw">${item.n||item.g.toUpperCase()}</div>
+            <div class="rtitle">${item.titel||"<em>–</em>"}</div>
+            <div class="rlaw">${item.gesetzName||item.gesetz.toUpperCase()}</div>
           </div>
         </div>`).join("")
     : `<div class="rempty"><p>Keine Treffer für <em>${q}</em></p></div>`;
@@ -262,11 +262,11 @@ function getCtx(q) {
   // Nutze searchData wenn geladen, sonst indexData
   const data = searchData.length ? searchData : indexData;
   if(!data.length) return {text:"",sources:[]};
-  const tmp = new Fuse(data, {keys:[{name:"b",weight:2.5},{name:"t",weight:1.8},{name:"i",weight:1}],threshold:0.35});
+  const tmp = new Fuse(data, {keys:[{name:"bezeichnung",weight:2.5},{name:"titel",weight:1.8},{name:"inhalt",weight:1}],threshold:0.35});
   const res = tmp.search(q,{limit:5});
   const sources = res.map(r=>r.item);
   const text = sources.map(p=>
-    `${p.b} ${p.n} – ${p.t}\n${p.i||""}`
+    `${p.bezeichnung} ${p.gesetzName} – ${p.titel}\n${p.inhalt||""}`
   ).join("\n\n---\n\n");
   return {text, sources};
 }
@@ -307,7 +307,7 @@ ${ctx ? `\nRelevante Normen:\n\n${ctx}` : ""}`;
     let html = ans.replace(/\n/g,"<br>");
     if(sources.length) {
       html += `<div class="srcs">Normen: ${sources.map(s=>
-        `<span class="stag" onclick='openP(${JSON.stringify(s).replace(/'/g,"&#39;")})'>${s.b} ${s.g.toUpperCase()}</span>`
+        `<span class="stag" onclick='openP(${JSON.stringify(s).replace(/'/g,"&#39;")})'>${s.bezeichnung} ${s.gesetz.toUpperCase()}</span>`
       ).join("")}</div>`;
     }
     el.className="msg ai"; el.innerHTML=html;
@@ -335,19 +335,19 @@ function clearChat(){history=[];document.getElementById("aimsgs").innerHTML="";d
 // ── Detail Panel ──────────────────────────────────────────────────────────────
 async function openP(item) {
   curItem=item;
-  document.getElementById("pnorm").textContent=`${item.b} ${item.n||item.g.toUpperCase()}`;
-  document.getElementById("ptitle").textContent=item.t||"";
+  document.getElementById("pnorm").textContent=`${item.bezeichnung} ${item.gesetzName||item.gesetz.toUpperCase()}`;
+  document.getElementById("ptitle").textContent=item.titel||"";
   document.getElementById("ptext").textContent="Lädt…";
   document.getElementById("panel").classList.add("on");
 
   // Volltext aus data/{gesetz}/data.json laden
   try {
-    const r = await fetch(`${DATA}${item.g}/data.json`);
+    const r = await fetch(`${DATA}${item.gesetz}/data.json`);
     const d = await r.json();
-    const p = d.paragraphen?.find(p=>p.bezeichnung===item.b);
+    const p = d.paragraphen?.find(p=>p.bezeichnung===item.bezeichnung);
     document.getElementById("ptext").textContent = p?.inhalt || "(kein Volltext)";
   } catch(e) {
-    document.getElementById("ptext").textContent = item.i || "(kein Volltext)";
+    document.getElementById("ptext").textContent = item.inhalt || "(kein Volltext)";
   }
 }
 function closeP(){document.getElementById("panel").classList.remove("on");curItem=null;}
