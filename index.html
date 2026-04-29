@@ -6,540 +6,581 @@
   <title>Gesetze.Repo – Deutsches Recht</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    :root{--ink:#1e2024;--ink-2:#4b5563;--ink-3:#9ca3af;--paper:#f8f9fa;--paper-2:#f1f3f5;--paper-3:#e9ecef;--accent:#2563eb;--accent-h:#1d4ed8;--accent-light:#eff6ff;--gold:#b45309;--gold-light:#fef3c7;--green:#059669;--green-light:#ecfdf5;--red:#dc2626;--border:#e5e7eb;--border-2:#d1d5db;--shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);--shadow-lg:0 4px 24px rgba(0,0,0,.12);--r:10px;--rs:6px;--serif:"Lora",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",monospace}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6}
-    header{background:#fff;border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-    .logo{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:.4rem}
-    .logo span{color:var(--accent)}
-    .logo-sub{font-family:var(--mono);font-size:.62rem;color:var(--ink-3);margin-top:.1rem}
-    #status{font-family:var(--mono);font-size:.65rem;color:var(--ink-3);text-align:right}
-    .layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 57px)}
-    @media(max-width:768px){.layout{grid-template-columns:1fr}}
-    aside{background:#fff;border-right:1px solid var(--border);padding:1.2rem;overflow-y:auto;height:calc(100vh - 57px);position:sticky;top:57px}
-    @media(max-width:768px){aside{display:none}}
-    .aside-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
-    .frow{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:1.2rem}
-    .chip{font-family:var(--mono);font-size:.67rem;padding:.22rem .6rem;border:1px solid var(--border);background:var(--paper-2);cursor:pointer;transition:all .15s;border-radius:20px;color:var(--ink-2)}
-    .chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
-    .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .ex-item{font-size:.82rem;color:var(--ink-2);padding:.38rem .5rem;cursor:pointer;border-radius:var(--rs);transition:background .15s;line-height:1.4}
-    .ex-item:hover{background:var(--paper-2);color:var(--accent)}
-    .ex-item::before{content:"→ ";color:var(--ink-3);font-size:.72rem}
-    main{padding:1.4rem;max-width:780px}
-    .searchbox{background:#fff;border:1.5px solid var(--border-2);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:.7rem;transition:border-color .2s,box-shadow .2s}
-    .searchbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-    .stop{display:flex;align-items:center}
-    .sicon{padding:0 .8rem;color:var(--ink-3);font-size:1.1rem;flex-shrink:0}
-    #qinput{flex:1;padding:.8rem .4rem;font-family:var(--sans);font-size:.97rem;border:none;outline:none;background:transparent;color:var(--ink)}
-    #qinput::placeholder{color:var(--ink-3)}
-    .sbot{display:flex;align-items:center;justify-content:space-between;padding:.4rem .8rem .5rem;border-top:1px solid var(--border);background:var(--paper-2);gap:.5rem}
-    .mode-area{display:flex;align-items:center;gap:.5rem}
-    .mtog{display:flex;align-items:center;gap:.35rem;cursor:pointer;user-select:none}
-    .mtog input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
-    .mtog span{font-family:var(--mono);font-size:.7rem;color:var(--ink-2)}
-    .sacts{display:flex;gap:.4rem}
-    .btn{padding:.35rem .9rem;font-family:var(--mono);font-size:.7rem;border-radius:var(--rs);border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
-    .btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:var(--accent-h)}.btn-p:disabled{opacity:.4;cursor:default}
-    .btn-g{background:var(--paper-3);color:var(--ink-2);border:1px solid var(--border)}.btn-g:hover{background:var(--border-2)}
-    .smeta{font-family:var(--mono);font-size:.67rem;color:var(--ink-3);margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap}
-    /* Tab-Switcher */
-    .tabs{display:flex;gap:.3rem;margin-bottom:1rem}
-    .tab{font-family:var(--mono);font-size:.7rem;padding:.3rem .8rem;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:var(--paper-2);color:var(--ink-3);transition:all .15s}
-    .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-    /* KI Box */
-    #aibox{display:none;background:#fff;border:1.5px solid var(--accent);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:1.2rem;overflow:hidden}
-    #aibox.on{display:block}
-    .aihead{display:flex;justify-content:space-between;align-items:center;padding:.65rem 1rem;background:var(--accent-light);border-bottom:1px solid rgba(37,99,235,.15)}
-    .aibadge{font-family:var(--mono);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:500;display:flex;align-items:center;gap:.4rem}
-    .aibadge::before{content:"";width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block}
-    .aibadge.thinking::before{animation:pulse .8s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    .ai-acts{display:flex;gap:.3rem}
-    .ibtn{background:none;border:1px solid var(--border);padding:.22rem .5rem;border-radius:var(--rs);cursor:pointer;font-size:.72rem;color:var(--ink-3);transition:all .15s;font-family:var(--mono)}
-    .ibtn:hover{background:var(--paper-3);color:var(--ink)}
-    #aimsgs{padding:1rem 1.1rem;max-height:480px;overflow-y:auto}
-    .msg{margin-bottom:.9rem;animation:fadein .2s ease}
-    @keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
-    .msg.user{font-size:.88rem;color:var(--ink-2);font-style:italic;padding:.45rem .8rem;background:var(--paper-2);border-left:3px solid var(--ink-3);border-radius:0 var(--rs) var(--rs) 0}
-    .msg.ai{font-size:.92rem;color:var(--ink);line-height:1.8}
-    .msg.ai p{margin-bottom:.5rem}
-    .msg.ai strong{font-weight:600}
-    .msg.err{color:var(--red);font-size:.88rem;padding:.45rem .8rem;background:#fef2f2;border-left:3px solid var(--red);border-radius:0 var(--rs) var(--rs) 0}
-    .srcs{margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border)}
-    .srcs-label{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:.4rem}
-    .stag{display:inline-block;margin:.12rem .15rem;padding:.18rem .5rem;background:var(--accent-light);border:1px solid rgba(37,99,235,.2);border-radius:20px;cursor:pointer;font-family:var(--mono);font-size:.65rem;color:var(--accent);transition:all .12s}
-    .stag:hover{background:var(--accent);color:#fff}
-    .utag{background:var(--gold-light);border-color:rgba(180,83,9,.2);color:var(--gold)}
-    .utag:hover{background:var(--gold);color:#fff}
-    .spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .ai-fu{padding:.6rem 1rem;border-top:1px solid var(--border);display:flex;gap:.4rem}
-    #fuinput{flex:1;font-family:var(--sans);font-size:.88rem;border:1px solid var(--border);border-radius:var(--rs);padding:.38rem .7rem;outline:none;background:var(--paper)}
-    #fuinput:focus{border-color:var(--accent)}
+    :root {
+      --ink:#1e2024; --ink2:#4b5563; --ink3:#9ca3af;
+      --bg:#f8f9fa; --bg2:#f1f3f5; --bg3:#e9ecef;
+      --blue:#2563eb; --blue-h:#1d4ed8; --blue-l:#eff6ff;
+      --gold:#b45309; --gold-l:#fef3c7;
+      --green:#059669; --red:#dc2626;
+      --brd:#e5e7eb; --brd2:#d1d5db;
+      --sh:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);
+      --sh2:0 4px 24px rgba(0,0,0,.12);
+      --r:10px; --rs:6px;
+      --sans:"Inter",system-ui,sans-serif;
+      --serif:"Lora",Georgia,serif;
+      --mono:"IBM Plex Mono",monospace;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+    body { font-family:var(--sans); background:var(--bg); color:var(--ink); min-height:100vh; font-size:15px; line-height:1.6 }
+
+    /* Header */
+    header { background:#fff; border-bottom:1px solid var(--brd); padding:.9rem 1.4rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 1px 4px rgba(0,0,0,.06) }
+    .logo { font-family:var(--serif); font-size:1.35rem; font-weight:600; color:var(--ink) }
+    .logo b { color:var(--blue) }
+    .logo-sub { font-family:var(--mono); font-size:.6rem; color:var(--ink3); margin-top:.1rem }
+    #hstatus { font-family:var(--mono); font-size:.63rem; color:var(--ink3); text-align:right }
+
+    /* Layout */
+    .wrap { display:grid; grid-template-columns:250px 1fr; min-height:calc(100vh - 53px) }
+    @media(max-width:720px) { .wrap { grid-template-columns:1fr } }
+
+    /* Sidebar */
+    aside { background:#fff; border-right:1px solid var(--brd); padding:1.1rem; overflow-y:auto; height:calc(100vh - 53px); position:sticky; top:53px }
+    @media(max-width:720px) { aside { display:none } }
+    .aside-label { font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin-bottom:.5rem; padding-bottom:.35rem; border-bottom:1px solid var(--brd) }
+    .chips { display:flex; flex-wrap:wrap; gap:.3rem; margin-bottom:1.1rem }
+    .chip { font-family:var(--mono); font-size:.66rem; padding:.22rem .6rem; border:1px solid var(--brd); background:var(--bg2); cursor:pointer; border-radius:20px; color:var(--ink2); transition:all .15s }
+    .chip:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-l) }
+    .chip.on { background:var(--blue); color:#fff; border-color:var(--blue) }
+    .ex-list { margin-top:.2rem }
+    .ex-item { font-size:.81rem; color:var(--ink2); padding:.35rem .45rem; cursor:pointer; border-radius:var(--rs); transition:background .15s; line-height:1.4 }
+    .ex-item:hover { background:var(--bg2); color:var(--blue) }
+    .ex-item::before { content:"→ "; color:var(--ink3); font-size:.72rem }
+
+    /* Main */
+    main { padding:1.3rem; max-width:780px }
+
+    /* Suchfeld */
+    .sbox { background:#fff; border:1.5px solid var(--brd2); border-radius:var(--r); box-shadow:var(--sh); overflow:hidden; margin-bottom:.6rem; transition:border-color .2s,box-shadow .2s }
+    .sbox:focus-within { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1) }
+    .stop { display:flex; align-items:center }
+    .sico { padding:0 .8rem; color:var(--ink3); font-size:1.1rem; flex-shrink:0 }
+    #qi { flex:1; padding:.78rem .4rem; font-family:var(--sans); font-size:.96rem; border:none; outline:none; background:transparent; color:var(--ink) }
+    #qi::placeholder { color:var(--ink3) }
+    .sbot { display:flex; align-items:center; justify-content:space-between; padding:.38rem .8rem .45rem; border-top:1px solid var(--brd); background:var(--bg2); gap:.5rem }
+    .mode-area { display:flex; align-items:center; gap:.5rem }
+    .mtog { display:flex; align-items:center; gap:.35rem; cursor:pointer; user-select:none }
+    .mtog input { accent-color:var(--blue); width:14px; height:14px; cursor:pointer }
+    .mtog span { font-family:var(--mono); font-size:.68rem; color:var(--ink2) }
+    .acts { display:flex; gap:.35rem }
+    .btn { padding:.32rem .85rem; font-family:var(--mono); font-size:.68rem; border-radius:var(--rs); border:none; cursor:pointer; transition:all .15s; white-space:nowrap }
+    .btn-p { background:var(--blue); color:#fff } .btn-p:hover { background:var(--blue-h) } .btn-p:disabled { opacity:.4; cursor:default }
+    .btn-g { background:var(--bg3); color:var(--ink2); border:1px solid var(--brd) } .btn-g:hover { background:var(--brd2) }
+    .smeta { font-family:var(--mono); font-size:.65rem; color:var(--ink3); margin-bottom:.9rem; display:flex; gap:1rem; flex-wrap:wrap }
+
+    /* Tabs */
+    .tabs { display:none; gap:.3rem; margin-bottom:.9rem }
+    .tabs.vis { display:flex }
+    .tab { font-family:var(--mono); font-size:.67rem; padding:.26rem .75rem; border:1px solid var(--brd); border-radius:20px; cursor:pointer; background:var(--bg2); color:var(--ink3); transition:all .15s }
+    .tab.on { background:var(--ink); color:#fff; border-color:var(--ink) }
+
+    /* KI-Box */
+    #aibox { display:none; background:#fff; border:1.5px solid var(--blue); border-radius:var(--r); box-shadow:var(--sh); margin-bottom:1.1rem; overflow:hidden }
+    #aibox.on { display:block }
+    .aihead { display:flex; justify-content:space-between; align-items:center; padding:.6rem 1rem; background:var(--blue-l); border-bottom:1px solid rgba(37,99,235,.15) }
+    .aibadge { font-family:var(--mono); font-size:.62rem; letter-spacing:.07em; text-transform:uppercase; color:var(--blue); font-weight:500; display:flex; align-items:center; gap:.4rem }
+    .aibadge::before { content:""; width:6px; height:6px; background:var(--blue); border-radius:50%; display:inline-block }
+    .aibadge.think::before { animation:pulse .8s infinite }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .ai-acts { display:flex; gap:.3rem }
+    .ibtn { background:none; border:1px solid var(--brd); padding:.22rem .5rem; border-radius:var(--rs); cursor:pointer; font-size:.7rem; color:var(--ink3); transition:all .15s; font-family:var(--mono) }
+    .ibtn:hover { background:var(--bg3); color:var(--ink) }
+    #aimsg { padding:.9rem 1rem; max-height:460px; overflow-y:auto }
+    .msg { margin-bottom:.85rem; animation:fadein .2s ease }
+    @keyframes fadein { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+    .msg.user { font-size:.87rem; color:var(--ink2); font-style:italic; padding:.45rem .75rem; background:var(--bg2); border-left:3px solid var(--brd2); border-radius:0 var(--rs) var(--rs) 0 }
+    .msg.ai { font-size:.91rem; color:var(--ink); line-height:1.8 }
+    .msg.ai p { margin-bottom:.45rem }
+    .msg.ai strong { font-weight:600 }
+    .msg.err { color:var(--red); font-size:.87rem; padding:.45rem .75rem; background:#fef2f2; border-left:3px solid var(--red); border-radius:0 var(--rs) var(--rs) 0 }
+    .srcs { margin-top:.75rem; padding-top:.65rem; border-top:1px solid var(--brd) }
+    .srcs-lbl { font-family:var(--mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.07em; color:var(--ink3); margin-bottom:.35rem }
+    .stag { display:inline-block; margin:.12rem .15rem; padding:.17rem .5rem; background:var(--blue-l); border:1px solid rgba(37,99,235,.2); border-radius:20px; cursor:pointer; font-family:var(--mono); font-size:.63rem; color:var(--blue); transition:all .12s }
+    .stag:hover { background:var(--blue); color:#fff }
+    .utag { background:var(--gold-l); border-color:rgba(180,83,9,.2); color:var(--gold) }
+    .utag:hover { background:var(--gold); color:#fff }
+    .spin { display:inline-block; width:13px; height:13px; border:2px solid var(--brd); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:.35rem }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .ai-fu { padding:.55rem .9rem; border-top:1px solid var(--brd); display:flex; gap:.35rem }
+    #fui { flex:1; font-family:var(--sans); font-size:.87rem; border:1px solid var(--brd); border-radius:var(--rs); padding:.37rem .65rem; outline:none; background:var(--bg) }
+    #fui:focus { border-color:var(--blue) }
+    #fui::placeholder { color:var(--ink3) }
+
     /* Ergebnisse */
-    .ritem{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.45rem;cursor:pointer;transition:all .15s;display:grid;grid-template-columns:auto 1fr;gap:.35rem .85rem}
-    .ritem:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-1px)}
-    .rnorm{font-family:var(--mono);font-size:.77rem;font-weight:500;color:var(--accent);white-space:nowrap;padding-top:.1rem}
-    .rnorm.urteil{color:var(--gold)}
-    .rtitle{font-size:.92rem;font-weight:500;color:var(--ink)}
-    .rmeta{font-family:var(--mono);font-size:.62rem;color:var(--ink-3);letter-spacing:.04em;grid-column:2;margin-top:.1rem}
-    .rsnip{font-size:.82rem;color:var(--ink-2);grid-column:2;margin-top:.2rem;line-height:1.5}
-    .rempty{text-align:center;padding:3rem 1rem;color:var(--ink-3)}
-    .rempty .big{font-size:2.5rem;margin-bottom:.5rem;opacity:.25}
+    .card { background:#fff; border:1px solid var(--brd); border-radius:var(--r); padding:.8rem .95rem; margin-bottom:.4rem; cursor:pointer; transition:all .15s; display:grid; grid-template-columns:auto 1fr; gap:.35rem .8rem }
+    .card:hover { border-color:var(--blue); box-shadow:var(--sh); transform:translateY(-1px) }
+    .cnorm { font-family:var(--mono); font-size:.76rem; font-weight:500; color:var(--blue); white-space:nowrap; padding-top:.1rem }
+    .cnorm.u { color:var(--gold) }
+    .ctitle { font-size:.91rem; font-weight:500; color:var(--ink) }
+    .cmeta { font-family:var(--mono); font-size:.61rem; color:var(--ink3); grid-column:2; margin-top:.08rem }
+    .csnip { font-size:.81rem; color:var(--ink2); grid-column:2; margin-top:.18rem; line-height:1.5 }
+    .empty { text-align:center; padding:3rem 1rem; color:var(--ink3) }
+    .empty .ico { font-size:2rem; opacity:.2; margin-bottom:.5rem }
+
     /* Panel */
-    #panel{display:none;position:fixed;right:0;top:0;bottom:0;width:min(560px,100vw);background:#fff;border-left:1px solid var(--border);z-index:200;flex-direction:column;box-shadow:var(--shadow-lg)}
-    #panel.on{display:flex}
-    .poverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:199}
-    .poverlay.on{display:block}
-    .phead{padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
-    .pnorm{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--accent)}
-    .ptitle{font-size:.88rem;color:var(--ink-2);margin-top:.2rem}
-    .pbadge{font-family:var(--mono);font-size:.62rem;color:var(--ink-3);text-transform:uppercase;margin-top:.3rem}
-    .pclose{background:none;border:1px solid var(--border);padding:.28rem .65rem;border-radius:var(--rs);cursor:pointer;font-size:.78rem;color:var(--ink-3)}
-    .pclose:hover{background:var(--paper-3)}
-    .pbody{flex:1;overflow-y:auto;padding:1.2rem}
-    .ptext{font-family:var(--serif);font-size:.93rem;line-height:1.9;color:var(--ink);white-space:pre-wrap;margin-bottom:1.2rem}
-    .pacts{display:flex;gap:.5rem;flex-wrap:wrap}
+    #panel { display:none; position:fixed; right:0; top:0; bottom:0; width:min(540px,100vw); background:#fff; border-left:1px solid var(--brd); z-index:200; flex-direction:column; box-shadow:var(--sh2) }
+    #panel.on { display:flex }
+    #ov { display:none; position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:199 }
+    #ov.on { display:block }
+    .phead { padding:.95rem 1.1rem; border-bottom:1px solid var(--brd); display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem }
+    .pnorm { font-family:var(--serif); font-size:1.2rem; font-weight:600; color:var(--blue) }
+    .ptitle { font-size:.86rem; color:var(--ink2); margin-top:.18rem }
+    .pbadge { font-family:var(--mono); font-size:.6rem; color:var(--ink3); text-transform:uppercase; margin-top:.25rem }
+    .pcls { background:none; border:1px solid var(--brd); padding:.28rem .6rem; border-radius:var(--rs); cursor:pointer; font-size:.78rem; color:var(--ink3) }
+    .pcls:hover { background:var(--bg3) }
+    .pbody { flex:1; overflow-y:auto; padding:1.1rem }
+    .ptext { font-family:var(--serif); font-size:.91rem; line-height:1.9; color:var(--ink); white-space:pre-wrap; margin-bottom:1.1rem }
+    .pacts { display:flex; gap:.45rem; flex-wrap:wrap }
+
     /* Toast */
-    #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:#fff;padding:.45rem 1.2rem;border-radius:20px;font-family:var(--mono);font-size:.72rem;transition:transform .25s;z-index:999;pointer-events:none}
-    #toast.on{transform:translateX(-50%) translateY(0)}
+    #toast { position:fixed; bottom:1.4rem; left:50%; transform:translateX(-50%) translateY(60px); background:var(--ink); color:#fff; padding:.42rem 1.1rem; border-radius:20px; font-family:var(--mono); font-size:.7rem; transition:transform .22s; z-index:999; pointer-events:none }
+    #toast.on { transform:translateX(-50%) translateY(0) }
   </style>
 </head>
 <body>
 
 <header>
   <div>
-    <div class="logo">Gesetze<span>.</span>Repo</div>
+    <div class="logo">Gesetze<b>.</b>Repo</div>
     <div class="logo-sub">Deutsches &amp; Europäisches Recht · RAG-Datenbank</div>
   </div>
-  <div id="status">Verbinde…</div>
+  <div id="hstatus">Verbinde mit Datenbank…</div>
 </header>
 
-<div class="layout">
+<div class="wrap">
   <aside>
-    <div class="aside-title">Gesetze</div>
-    <div class="frow" id="frow"></div>
-    <div class="aside-title" style="margin-top:.8rem">Beispielfragen</div>
-    <div id="examples">
+    <div class="aside-label">Gesetze</div>
+    <div class="chips" id="chips"></div>
+    <div class="aside-label">Beispielfragen</div>
+    <div class="ex-list">
       <div class="ex-item" onclick="ex(this)">Wann hafte ich für Schäden?</div>
       <div class="ex-item" onclick="ex(this)">Kündigungsschutz Arbeitnehmer</div>
-      <div class="ex-item" onclick="ex(this)">GmbH Geschäftsführer Haftung</div>
+      <div class="ex-item" onclick="ex(this)">GmbH Geschäftsführer Haftung § 43</div>
       <div class="ex-item" onclick="ex(this)">Datenschutz Einwilligung DSGVO</div>
       <div class="ex-item" onclick="ex(this)">Mietminderung Voraussetzungen</div>
       <div class="ex-item" onclick="ex(this)">Urheberrecht KI-generierte Werke</div>
-      <div class="ex-item" onclick="ex(this)">Insolvenz Antragsfristen GmbH</div>
-      <div class="ex-item" onclick="ex(this)">Wettbewerbsrecht Abmahnung</div>
+      <div class="ex-item" onclick="ex(this)">Insolvenzantragspflicht GmbH</div>
+      <div class="ex-item" onclick="ex(this)">Wettbewerbsrecht Abmahnung UWG</div>
+      <div class="ex-item" onclick="ex(this)">BGH Urteil Datenschutzverletzung</div>
     </div>
   </aside>
 
   <main>
-    <div class="searchbox">
+    <div class="sbox">
       <div class="stop">
-        <div class="sicon">⌕</div>
-        <input type="text" id="qinput" placeholder="Paragraph suchen oder Rechtsfrage stellen…" autocomplete="off" spellcheck="false">
+        <div class="sico">⌕</div>
+        <input type="text" id="qi" placeholder="Paragraph suchen oder Rechtsfrage stellen…" autocomplete="off" spellcheck="false">
       </div>
       <div class="sbot">
         <div class="mode-area">
           <label class="mtog">
-            <input type="checkbox" id="aitog" checked onchange="onModeChange()">
-            <span id="modelabel">KI-Modus</span>
+            <input type="checkbox" id="aitog" checked onchange="onMode()">
+            <span id="mlbl">KI-Modus</span>
           </label>
         </div>
-        <div class="sacts">
-          <button class="btn btn-g" onclick="clearAll()">Leeren</button>
+        <div class="acts">
+          <button class="btn btn-g" onclick="reset()">Leeren</button>
           <button class="btn btn-p" id="sbtn" onclick="go()">Suchen →</button>
         </div>
       </div>
     </div>
 
-    <div class="smeta">
-      <span id="rcount">–</span>
-      <span id="istats"></span>
-    </div>
+    <div class="smeta"><span id="rcount">–</span> <span id="dbinfo"></span></div>
 
-    <!-- Tab-Switcher für Ergebnisse -->
-    <div class="tabs" id="tabs" style="display:none">
+    <div class="tabs" id="tabs">
       <button class="tab on" onclick="setTab('alle',this)">Alle</button>
-      <button class="tab" onclick="setTab('gesetze',this)">Gesetze</button>
-      <button class="tab" onclick="setTab('urteile',this)">Urteile</button>
+      <button class="tab"    onclick="setTab('gesetze',this)">Gesetze</button>
+      <button class="tab"    onclick="setTab('urteile',this)">Urteile</button>
     </div>
 
-    <!-- KI Box -->
     <div id="aibox">
       <div class="aihead">
-        <div class="aibadge" id="aibadge">KI · Nur aus Datenbank</div>
+        <div class="aibadge" id="aibdg">KI · Nur aus Datenbank</div>
         <div class="ai-acts">
           <button class="ibtn" onclick="copyAns()">⎘ Kopieren</button>
           <button class="ibtn" onclick="saveAns()">↓ Speichern</button>
-          <button class="ibtn" onclick="clearChat()">✕</button>
+          <button class="ibtn" onclick="clearAI()">✕</button>
         </div>
       </div>
-      <div id="aimsgs"></div>
+      <div id="aimsg"></div>
       <div class="ai-fu">
-        <input type="text" id="fuinput" placeholder="Folgefrage…">
+        <input type="text" id="fui" placeholder="Folgefrage…">
         <button class="btn btn-p" id="fubtn" onclick="followUp()">→</button>
       </div>
     </div>
 
-    <!-- Ergebnisse -->
-    <div id="results">
-      <div class="rempty"><div class="big">§</div><p>Suche nach Paragraphen oder stelle eine Rechtsfrage.</p></div>
+    <div id="res">
+      <div class="empty"><div class="ico">§</div><p>Stelle eine Rechtsfrage oder suche nach Paragraphen.</p></div>
     </div>
   </main>
 </div>
 
-<div class="poverlay" id="overlay" onclick="closeP()"></div>
+<div id="ov" onclick="closeP()"></div>
 <div id="panel">
   <div class="phead">
     <div>
-      <div class="pnorm" id="pnorm">–</div>
+      <div class="pnorm"  id="pnorm">–</div>
       <div class="ptitle" id="ptitle">–</div>
       <div class="pbadge" id="pbadge">–</div>
     </div>
-    <button class="pclose" onclick="closeP()">✕</button>
+    <button class="pcls" onclick="closeP()">✕</button>
   </div>
   <div class="pbody">
     <div class="ptext" id="ptext">Lädt…</div>
     <div class="pacts">
       <button class="btn btn-p" onclick="askCurrent()">Mit KI erklären →</button>
-      <button class="btn btn-g" onclick="copyPanel()">⎘ Kopieren</button>
+      <button class="btn btn-g" onclick="copyP()">⎘ Kopieren</button>
     </div>
   </div>
 </div>
+
 <div id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
 <script>
-const WORKER = "https://ki-gesetze.tageslage.workers.dev";
-const DATA   = "data/";
+// ── Konfiguration ─────────────────────────────────────────────────────────────
+const W = "https://ki-gesetze.tageslage.workers.dev";
 
-let fuse, indexData=[], aiMode=true, filter=null, history=[], curItem=null;
-let lastAnswer="", lastQ="", curTab="alle", curResults=[];
+// ── State ─────────────────────────────────────────────────────────────────────
+let aiMode = true;
+let filter = null;
+let curTab = "alle";
+let history = [];
+let curItem = null;
+let lastQ = "";
+let lastAns = "";
+let allResults = [];
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
+  // DB-Status aus meta.json (lokaler Fallback)
   try {
-    const [idxR, metaR] = await Promise.all([
-      fetch(DATA+"index.json"),
-      fetch(DATA+"meta.json"),
-    ]);
-    if (!idxR.ok) throw new Error("index.json nicht gefunden");
-    indexData = await idxR.json();
-    fuse = new Fuse(indexData, {
-      keys:[{name:"bezeichnung",weight:2.5},{name:"titel",weight:1.8},{name:"gesetzName",weight:.5}],
-      threshold:0.35, minMatchCharLength:2,
-    });
-    const meta = await metaR.json();
-    document.getElementById("status").textContent =
-      "Stand: " + new Date(meta.generiert).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
-    document.getElementById("istats").textContent =
-      `${meta.anzahl_eintraege.toLocaleString("de")} §§ · ${meta.gesetze.length} Gesetze`;
-    buildChips(meta.gesetze);
-    document.getElementById("rcount").textContent = "Bereit";
-  } catch(e) {
-    document.getElementById("status").textContent = "Fehler: " + e.message;
+    const r = await fetch("data/meta.json");
+    if (r.ok) {
+      const m = await r.json();
+      document.getElementById("hstatus").textContent =
+        "Stand: " + new Date(m.generiert).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+      document.getElementById("dbinfo").textContent =
+        `${(m.anzahl_eintraege||0).toLocaleString("de")} §§ · ${(m.gesetze||[]).length} Gesetze`;
+      buildChips(m.gesetze || []);
+    }
+  } catch {}
+
+  // Schnell-Ping an Worker
+  try {
+    const r = await fetch(`${W}/search?q=BGB&typ=gesetze&limit=1`);
+    if (r.ok) {
+      document.getElementById("hstatus").textContent = "Datenbank verbunden ✓";
+      document.getElementById("rcount").textContent = "Bereit";
+    }
+  } catch {
+    document.getElementById("hstatus").textContent = "Offline – lokaler Modus";
   }
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("qinput").addEventListener("keydown", e=>{
-    if(e.key==="Enter"){e.preventDefault();go();}
-    if(e.key==="Escape") closeP();
+  document.getElementById("qi").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); go(); }
+    if (e.key === "Escape") closeP();
   });
-  document.getElementById("fuinput").addEventListener("keydown", e=>{
-    if(e.key==="Enter"){e.preventDefault();followUp();}
+  document.getElementById("fui").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); followUp(); }
   });
+  init();
 });
 
-function onModeChange() {
+function onMode() {
   aiMode = document.getElementById("aitog").checked;
-  document.getElementById("modelabel").textContent = aiMode ? "KI-Modus" : "Nur Suche";
+  document.getElementById("mlbl").textContent = aiMode ? "KI-Modus" : "Nur Suche";
+  document.getElementById("qi").placeholder = aiMode
+    ? "Rechtsfrage stellen…"
+    : "Paragraph suchen… z.B. § 823 oder Kündigung";
 }
 
 function go() {
-  const q = document.getElementById("qinput").value.trim();
-  if(!q) return;
-  // Immer lokale Suche
-  localSearch(q);
-  // Zusätzlich Worker-Suche + KI
-  workerSearch(q);
-  if(aiMode) askAI(q);
+  const q = document.getElementById("qi").value.trim();
+  if (!q) return;
+  doSearch(q);
+  if (aiMode) askAI(q);
 }
 
 function ex(el) {
-  document.getElementById("qinput").value = el.textContent.replace(/^→\s*/,"");
+  const q = el.textContent.replace(/^→\s*/, "");
+  document.getElementById("qi").value = q;
   document.getElementById("aitog").checked = true;
   aiMode = true;
   go();
 }
 
-function clearAll() {
-  document.getElementById("qinput").value="";
-  clearChat();
-  document.getElementById("results").innerHTML=`<div class="rempty"><div class="big">§</div><p>Suche nach Paragraphen oder stelle eine Rechtsfrage.</p></div>`;
-  document.getElementById("rcount").textContent="–";
-  document.getElementById("tabs").style.display="none";
-  filter=null;
-  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+function reset() {
+  document.getElementById("qi").value = "";
+  clearAI();
+  allResults = [];
+  document.getElementById("res").innerHTML = `<div class="empty"><div class="ico">§</div><p>Stelle eine Rechtsfrage oder suche nach Paragraphen.</p></div>`;
+  document.getElementById("rcount").textContent = "–";
+  document.getElementById("tabs").classList.remove("vis");
+  filter = null;
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
 }
 
-// ── Filter ────────────────────────────────────────────────────────────────────
-const LABELS={gg:"GG",bgb:"BGB",stgb:"StGB",hgb:"HGB",bdsg_2018:"BDSG",estg:"EStG",uwg:"UWG",gwb:"GWB",urhg:"UrhG",inso:"InsO",zpo:"ZPO",stpo:"StPO",vwgo:"VwGO"};
+// ── Filter-Chips ──────────────────────────────────────────────────────────────
+const LBLS = {gg:"GG",bgb:"BGB",stgb:"StGB",hgb:"HGB",bdsg_2018:"BDSG",estg:"EStG",uwg:"UWG",gwb:"GWB",urhg:"UrhG",inso:"InsO",zpo:"ZPO",stpo:"StPO",vwgo:"VwGO",dsgvo:"DSGVO",ki_vo:"KI-VO"};
+
 function buildChips(gesetze) {
-  const prio=Object.keys(LABELS);
-  const sorted=[...prio.filter(g=>gesetze.includes(g)),...gesetze.filter(g=>!prio.includes(g)).sort()];
-  document.getElementById("frow").innerHTML=sorted.slice(0,18).map(g=>
-    `<button class="chip" onclick="toggleF('${g}',this)">${LABELS[g]||g.toUpperCase()}</button>`
+  const prio = Object.keys(LBLS);
+  const sorted = [...prio.filter(g => gesetze.includes(g)), ...gesetze.filter(g => !prio.includes(g)).sort()];
+  document.getElementById("chips").innerHTML = sorted.slice(0, 18).map(g =>
+    `<button class="chip" onclick="toggleF('${g}',this)">${LBLS[g] || g.toUpperCase()}</button>`
   ).join("");
 }
-function toggleF(g,el) {
-  filter=filter===g?null:g;
-  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
-  if(filter) el.classList.add("on");
-  const q=document.getElementById("qinput").value.trim();
-  if(q||filter) localSearch(q);
+
+function toggleF(g, el) {
+  filter = filter === g ? null : g;
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+  if (filter) el.classList.add("on");
+  const q = document.getElementById("qi").value.trim();
+  if (q || filter) doSearch(q);
 }
 
-// ── Tab ───────────────────────────────────────────────────────────────────────
-function setTab(tab, el) {
-  curTab=tab;
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
-  el.classList.add("on");
-  renderResults(curResults);
-}
-
-// ── Lokale Suche (Fuse.js) ────────────────────────────────────────────────────
-function localSearch(q) {
-  if(!fuse) return;
-  let res = q
-    ? fuse.search(q,{limit:80}).map(r=>({...r.item,typ:"paragraph"}))
-    : indexData.map(i=>({...i,typ:"paragraph"}));
-  if(filter) res=res.filter(r=>r.gesetz===filter);
-  curResults = curResults.filter(r=>r.typ==="urteil").concat(res);
-  renderResults(curResults);
-}
-
-// ── Worker Suche ──────────────────────────────────────────────────────────────
-async function workerSearch(q) {
+// ── Suche ─────────────────────────────────────────────────────────────────────
+async function doSearch(q) {
+  document.getElementById("rcount").textContent = "Suche…";
   try {
-    const r = await fetch(`${WORKER}/search?q=${encodeURIComponent(q)}&typ=urteile&limit=10`);
-    if(!r.ok) return;
-    const urteile = await r.json();
-    if(!urteile.length) return;
-    const mapped = urteile.map(u=>({...u, typ:"urteil"}));
-    curResults = curResults.filter(r=>r.typ==="paragraph").concat(mapped);
-    if(mapped.length) {
-      document.getElementById("tabs").style.display="flex";
-      renderResults(curResults);
+    const params = new URLSearchParams({ q, typ: "alle", limit: "40" });
+    const r = await fetch(`${W}/search?${params}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    let results = await r.json();
+
+    if (filter) results = results.filter(x => x.gesetz === filter || x.gericht?.includes(filter.toUpperCase()));
+
+    allResults = results;
+    if (results.some(x => x.typ === "urteil")) {
+      document.getElementById("tabs").classList.add("vis");
     }
-  } catch {}
+
+    document.getElementById("rcount").textContent = `${results.length} Treffer`;
+    renderResults(results);
+  } catch(e) {
+    document.getElementById("rcount").textContent = "Fehler bei Suche";
+    console.error(e);
+  }
 }
 
-// ── Ergebnisse rendern ────────────────────────────────────────────────────────
+function setTab(tab, el) {
+  curTab = tab;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
+  el.classList.add("on");
+  renderResults(allResults);
+}
+
 function renderResults(results) {
   let filtered = results;
-  if(curTab==="gesetze") filtered=results.filter(r=>r.typ==="paragraph");
-  if(curTab==="urteile") filtered=results.filter(r=>r.typ==="urteil");
+  if (curTab === "gesetze") filtered = results.filter(x => x.typ === "paragraph");
+  if (curTab === "urteile") filtered = results.filter(x => x.typ === "urteil");
 
-  document.getElementById("rcount").textContent=`${filtered.length} Treffer`;
-
-  if(!filtered.length) {
-    document.getElementById("results").innerHTML=`<div class="rempty"><p>Keine Treffer</p></div>`;
+  if (!filtered.length) {
+    document.getElementById("res").innerHTML = `<div class="empty"><p>Keine Treffer</p></div>`;
     return;
   }
 
-  document.getElementById("results").innerHTML = filtered.slice(0,60).map(item => {
-    if(item.typ==="urteil") {
-      return `<div class="ritem" onclick='openUrteil(${JSON.stringify(item).replace(/'/g,"&#39;")})'>
-        <div class="rnorm urteil">⚖</div>
+  document.getElementById("res").innerHTML = filtered.slice(0, 50).map(item => {
+    if (item.typ === "urteil") {
+      return `<div class="card" onclick='openU(${esc(item)})'>
+        <div class="cnorm u">⚖</div>
         <div>
-          <div class="rtitle">${item.titel||item.aktenzeichen||"Urteil"}</div>
-          <div class="rmeta">${item.gericht||""} · ${item.datum||""} · Az. ${item.aktenzeichen||""} · ${item.rechtsgebiet||""}</div>
-          ${item.snippet?`<div class="rsnip">${item.snippet}…</div>`:""}
+          <div class="ctitle">${item.titel || item.aktenzeichen || "Urteil"}</div>
+          <div class="cmeta">${item.gericht || ""} · ${item.datum || ""} · Az.&nbsp;${item.aktenzeichen || ""}</div>
+          ${item.snippet ? `<div class="csnip">${item.snippet}…</div>` : ""}
         </div>
       </div>`;
     }
-    return `<div class="ritem" onclick='openP(${JSON.stringify(item).replace(/'/g,"&#39;")})'>
-      <div class="rnorm">${item.bezeichnung}</div>
+    return `<div class="card" onclick='openN(${esc(item)})'>
+      <div class="cnorm">${item.bezeichnung}</div>
       <div>
-        <div class="rtitle">${item.titel||"<em style='color:var(--ink-3)'>–</em>"}</div>
-        <div class="rmeta">${item.gesetzName||item.gesetz?.toUpperCase()||""}</div>
+        <div class="ctitle">${item.titel || "–"}</div>
+        <div class="cmeta">${item.gesetzName || item.gesetz?.toUpperCase() || ""}</div>
       </div>
     </div>`;
   }).join("");
 }
 
-// ── KI (RAG über Worker) ──────────────────────────────────────────────────────
-async function askAI(q, isFollowup=false) {
-  const box=document.getElementById("aibox");
-  const badge=document.getElementById("aibadge");
-  const btn=document.getElementById(isFollowup?"fubtn":"sbtn");
+function esc(obj) {
+  return JSON.stringify(obj).replace(/'/g, "&#39;");
+}
+
+// ── KI ────────────────────────────────────────────────────────────────────────
+async function askAI(q, isFollowup = false) {
+  const box  = document.getElementById("aibox");
+  const bdg  = document.getElementById("aibdg");
+  const btn  = document.getElementById(isFollowup ? "fubtn" : "sbtn");
 
   box.classList.add("on");
-  btn.disabled=true;
-  lastQ=q;
+  btn.disabled = true;
+  lastQ = q;
 
-  if(!isFollowup) history=[];
-  addMsg(q,"user");
-  history.push({role:"user",content:q});
+  if (!isFollowup) history = [];
+  addMsg(q, "user");
+  history.push({ role: "user", content: q });
 
-  badge.className="aibadge thinking";
-  badge.textContent="Durchsuche Datenbank…";
-  const el=addMsg(`<span class="spinner"></span>Suche in Gesetzen und Urteilen…`,"ai");
+  bdg.className = "aibadge think";
+  bdg.textContent = "Durchsuche Datenbank…";
+  const el = addMsg(`<span class="spin"></span>Analysiere Gesetze und Urteile…`, "ai");
 
   try {
-    const r = await fetch(`${WORKER}/ai`, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({question:q, history:history.slice(-6)}),
+    const r = await fetch(`${W}/ai`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, history: history.slice(-6) }),
     });
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
-    lastAnswer = d.answer || "";
-    const sources = d.sources || {};
 
-    // Antwort rendern
-    let html = lastAnswer
-      .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
-      .replace(/\n\n/g,"</p><p>")
-      .replace(/\n/g,"<br>");
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`Worker: ${t}`);
+    }
+
+    const d = await r.json();
+    lastAns = d.answer || "";
+    const src = d.sources || {};
+
+    // Markdown-Rendering
+    let html = lastAns
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n\n/g, "</p><p>")
+      .replace(/\n/g, "<br>");
     html = `<p>${html}</p>`;
 
-    // Quellen anzeigen
-    const paras   = sources.paragraphen || [];
-    const urteile = sources.urteile     || [];
-    if(paras.length || urteile.length) {
-      html += `<div class="srcs"><div class="srcs-label">Quellen aus Datenbank</div>`;
-      html += paras.map(p=>
-        `<span class="stag" onclick='openPByKey("${p.gesetz}","${p.bezeichnung}")'>${p.bezeichnung} ${(p.gesetz||"").toUpperCase()}</span>`
+    const paras   = src.paragraphen || [];
+    const urteile = src.urteile     || [];
+    if (paras.length || urteile.length) {
+      html += `<div class="srcs"><div class="srcs-lbl">Quellen aus Datenbank</div>`;
+      html += paras.map(p =>
+        `<span class="stag" onclick='openNK("${p.gesetz}","${p.bezeichnung}")'>${p.bezeichnung} ${(p.gesetz||"").toUpperCase()}</span>`
       ).join("");
-      html += urteile.map(u=>
-        `<span class="stag utag">${u.gericht} · ${u.datum} · ${u.aktenzeichen}</span>`
+      html += urteile.map(u =>
+        `<span class="stag utag" title="${u.titel||""}">${u.gericht} · ${u.datum} · ${u.aktenzeichen}</span>`
       ).join("");
       html += `</div>`;
     }
 
-    el.className="msg ai"; el.innerHTML=html;
-    history.push({role:"assistant",content:lastAnswer});
+    el.className = "msg ai";
+    el.innerHTML = html;
+    history.push({ role: "assistant", content: lastAns });
 
   } catch(e) {
-    el.className="msg err"; el.textContent="Fehler: "+e.message;
+    el.className = "msg err";
+    el.textContent = "Fehler: " + e.message;
   } finally {
-    btn.disabled=false;
-    badge.className="aibadge";
-    badge.textContent="KI · Nur aus Datenbank";
-    if(isFollowup) document.getElementById("fuinput").value="";
-    document.getElementById("aimsgs").scrollTop=9999;
+    btn.disabled = false;
+    bdg.className = "aibadge";
+    bdg.textContent = "KI · Nur aus Datenbank";
+    if (isFollowup) document.getElementById("fui").value = "";
+    document.getElementById("aimsg").scrollTop = 9999;
   }
 }
 
 function followUp() {
-  const q=document.getElementById("fuinput").value.trim();
-  if(q) askAI(q,true);
+  const q = document.getElementById("fui").value.trim();
+  if (q) askAI(q, true);
 }
 
-function addMsg(html,role) {
-  const msgs=document.getElementById("aimsgs");
-  const el=document.createElement("div");
-  el.className=`msg ${role}`; el.innerHTML=html;
-  msgs.appendChild(el); msgs.scrollTop=9999;
+function addMsg(html, role) {
+  const c = document.getElementById("aimsg");
+  const el = document.createElement("div");
+  el.className = `msg ${role}`;
+  el.innerHTML = html;
+  c.appendChild(el);
+  c.scrollTop = 9999;
   return el;
 }
 
-function clearChat() {
-  history=[];
-  document.getElementById("aimsgs").innerHTML="";
+function clearAI() {
+  history = [];
+  document.getElementById("aimsg").innerHTML = "";
   document.getElementById("aibox").classList.remove("on");
 }
 
 // ── Kopieren / Speichern ──────────────────────────────────────────────────────
 function copyAns() {
-  if(!lastAnswer) return;
-  navigator.clipboard.writeText(lastAnswer).then(()=>toast("Kopiert!"));
+  if (!lastAns) return;
+  navigator.clipboard.writeText(lastAns).then(() => toast("Kopiert!"));
 }
 function saveAns() {
-  if(!lastAnswer) return;
-  const blob=new Blob([`Frage: ${lastQ}\n\n${lastAnswer}`],{type:"text/plain"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=`rechtsfrage-${Date.now()}.txt`; a.click(); toast("Gespeichert!");
+  if (!lastAns) return;
+  const b = new Blob([`Frage: ${lastQ}\n\n${lastAns}`], {type:"text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b);
+  a.download = `rechtsfrage-${Date.now()}.txt`;
+  a.click();
+  toast("Gespeichert!");
 }
-function copyPanel() {
-  navigator.clipboard.writeText(
-    `${document.getElementById("pnorm").textContent}\n\n${document.getElementById("ptext").textContent}`
-  ).then(()=>toast("Kopiert!"));
+function copyP() {
+  const t = `${document.getElementById("pnorm").textContent}\n\n${document.getElementById("ptext").textContent}`;
+  navigator.clipboard.writeText(t).then(() => toast("Kopiert!"));
 }
 function toast(msg) {
-  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on");
-  setTimeout(()=>t.classList.remove("on"),2000);
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  setTimeout(() => t.classList.remove("on"), 2000);
 }
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
-async function openP(item) {
-  curItem=item;
-  document.getElementById("pnorm").textContent=item.bezeichnung;
-  document.getElementById("ptitle").textContent=item.titel||"";
-  document.getElementById("pbadge").textContent=item.gesetzName||item.gesetz?.toUpperCase()||"";
-  document.getElementById("ptext").textContent="Lädt…";
+async function openN(item) {
+  curItem = item;
+  document.getElementById("pnorm").textContent  = item.bezeichnung || "";
+  document.getElementById("ptitle").textContent = item.titel || "";
+  document.getElementById("pbadge").textContent = item.gesetzName || item.gesetz?.toUpperCase() || "";
+  document.getElementById("ptext").textContent  = "Lädt…";
   document.getElementById("panel").classList.add("on");
-  document.getElementById("overlay").classList.add("on");
+  document.getElementById("ov").classList.add("on");
 
   try {
-    // Volltext aus Worker /norm holen
-    const r = await fetch(`${WORKER}/norm?gesetz=${item.gesetz}&bezeichnung=${encodeURIComponent(item.bezeichnung)}`);
-    if(r.ok) {
+    const r = await fetch(`${W}/norm?gesetz=${item.gesetz}&bezeichnung=${encodeURIComponent(item.bezeichnung)}`);
+    if (r.ok) {
       const d = await r.json();
-      document.getElementById("ptext").textContent = d.inhalt || item.inhalt || "(kein Volltext)";
+      document.getElementById("ptext").textContent = d.inhalt || "(kein Volltext)";
       curItem = {...item, ...d};
-    } else throw new Error();
-  } catch {
-    // Fallback: lokale data/ Dateien
-    try {
-      const r2 = await fetch(`${DATA}${item.gesetz}/data.json`);
-      const d2 = await r2.json();
-      const p = d2.paragraphen?.find(p=>p.bezeichnung===item.bezeichnung);
-      document.getElementById("ptext").textContent = p?.inhalt || "(kein Volltext)";
-    } catch {
+    } else {
       document.getElementById("ptext").textContent = item.inhalt || "(kein Volltext)";
     }
+  } catch {
+    document.getElementById("ptext").textContent = item.inhalt || "(kein Volltext)";
   }
 }
 
-async function openPByKey(gesetz, bezeichnung) {
-  const item = indexData.find(i=>i.gesetz===gesetz&&i.bezeichnung===bezeichnung) ||
-    {gesetz, bezeichnung, titel:"", gesetzName:gesetz.toUpperCase()};
-  openP(item);
+async function openNK(gesetz, bezeichnung) {
+  openN({ gesetz, bezeichnung, titel: "", gesetzName: gesetz.toUpperCase() });
 }
 
-function openUrteil(item) {
-  curItem=item;
-  document.getElementById("pnorm").textContent=`Az. ${item.aktenzeichen||"–"}`;
-  document.getElementById("ptitle").textContent=item.titel||"";
-  document.getElementById("pbadge").textContent=`${item.gericht||""} · ${item.datum||""} · ${item.rechtsgebiet||""}`;
-  document.getElementById("ptext").textContent=item.leitsatz||item.volltext||"(kein Volltext)";
+function openU(item) {
+  curItem = item;
+  document.getElementById("pnorm").textContent  = `Az. ${item.aktenzeichen || "–"}`;
+  document.getElementById("ptitle").textContent = item.titel || "";
+  document.getElementById("pbadge").textContent = `${item.gericht || ""} · ${item.datum || ""} · ${item.rechtsgebiet || ""}`;
+  document.getElementById("ptext").textContent  = item.leitsatz || item.volltext || "(kein Volltext)";
   document.getElementById("panel").classList.add("on");
-  document.getElementById("overlay").classList.add("on");
+  document.getElementById("ov").classList.add("on");
 }
 
 function closeP() {
   document.getElementById("panel").classList.remove("on");
-  document.getElementById("overlay").classList.remove("on");
-  curItem=null;
+  document.getElementById("ov").classList.remove("on");
+  curItem = null;
 }
 
 function askCurrent() {
-  if(!curItem) return;
-  const item=curItem; closeP();
+  if (!curItem) return;
+  const item = curItem;
+  closeP();
   const q = item.aktenzeichen
-    ? `Erkläre das Urteil ${item.aktenzeichen} – ${item.titel||""}`
-    : `Erkläre ${item.bezeichnung} ${item.gesetzName||item.gesetz||""} – ${item.titel||""}`;
-  document.getElementById("qinput").value=q;
-  document.getElementById("aitog").checked=true; aiMode=true;
-  localSearch(q); askAI(q);
+    ? `Erkläre das Urteil ${item.aktenzeichen} – ${item.titel || ""}`
+    : `Erkläre ${item.bezeichnung} ${item.gesetzName || item.gesetz || ""} – ${item.titel || ""}`;
+  document.getElementById("qi").value = q;
+  document.getElementById("aitog").checked = true;
+  aiMode = true;
+  doSearch(q);
+  askAI(q);
 }
-
-init();
 </script>
 </body>
 </html>
