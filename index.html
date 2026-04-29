@@ -252,28 +252,35 @@ let allResults = [];
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
-  // DB-Status aus meta.json (lokaler Fallback)
   try {
-    const r = await fetch("data/meta.json");
-    if (r.ok) {
-      const m = await r.json();
-      document.getElementById("hstatus").textContent =
-        "Stand: " + new Date(m.generiert).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
-      document.getElementById("dbinfo").textContent =
-        `${(m.anzahl_eintraege||0).toLocaleString("de")} §§ · ${(m.gesetze||[]).length} Gesetze`;
-      buildChips(m.gesetze || []);
-    }
-  } catch {}
+    // Gesetze-Liste direkt aus D1 holen
+    const r = await fetch(`${W}/search?q=a&typ=gesetze&limit=500`);
+    if (!r.ok) throw new Error("Worker nicht erreichbar");
+    const rows = await r.json();
 
-  // Schnell-Ping an Worker
-  try {
-    const r = await fetch(`${W}/search?q=BGB&typ=gesetze&limit=1`);
-    if (r.ok) {
-      document.getElementById("hstatus").textContent = "Datenbank verbunden ✓";
-      document.getElementById("rcount").textContent = "Bereit";
-    }
-  } catch {
-    document.getElementById("hstatus").textContent = "Offline – lokaler Modus";
+    // Eindeutige Gesetze extrahieren
+    const gesetzeMap = {};
+    rows.forEach(row => {
+      if (row.gesetz && !gesetzeMap[row.gesetz]) {
+        gesetzeMap[row.gesetz] = row.gesetzName || row.gesetz.toUpperCase();
+      }
+    });
+    const gesetze = Object.keys(gesetzeMap);
+
+    document.getElementById("hstatus").textContent = "Datenbank verbunden ✓";
+    document.getElementById("dbinfo").textContent = `${rows.length}+ §§ · ${gesetze.length} Gesetze`;
+    document.getElementById("rcount").textContent = "Bereit";
+    buildChips(gesetze);
+  } catch(e) {
+    document.getElementById("hstatus").textContent = "Fehler: " + e.message;
+    // Fallback: meta.json
+    try {
+      const r = await fetch("data/meta.json");
+      if (r.ok) {
+        const m = await r.json();
+        buildChips(m.gesetze || []);
+      }
+    } catch {}
   }
 }
 
