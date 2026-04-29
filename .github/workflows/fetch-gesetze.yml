@@ -84,10 +84,8 @@ jobs:
         run: |
           echo "## Ergebnis" >> $GITHUB_STEP_SUMMARY
           if [ -f data/meta.json ]; then
-            python3 -c "
-import json
-d=json.load(open('data/meta.json'))
-print(f'- **{d[\"anzahl_eintraege\"]:,}** Paragraphen in **{len(d[\"gesetze\"])}** Gesetzen')
-" >> $GITHUB_STEP_SUMMARY
+            ANZAHL=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(d.get('anzahl_eintraege','?'))")
+            GESETZE=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(len(d.get('gesetze',[])))")
+            echo "- ${ANZAHL} Paragraphen in ${GESETZE} Gesetzen" >> $GITHUB_STEP_SUMMARY
           fi
           echo "- $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
