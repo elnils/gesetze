@@ -1,5 +1,9 @@
 {
-  "generiert": "2026-04-29T07:56:57.694634+00:00",
-  "anzahl_eintraege": 0,
-  "gesetze": []
+  "generiert": "2026-04-29T12:54:46.511239+00:00",
+  "anzahl_eintraege": 3311,
+  "gesetze": [
+    "bgb",
+    "gg",
+    "stgb"
+  ]
 }
