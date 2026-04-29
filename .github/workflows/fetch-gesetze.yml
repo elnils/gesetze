@@ -2,16 +2,25 @@ name: Gesetze aktualisieren
 
 on:
   schedule:
-    # Täglich um 03:00 UTC (05:00 MEZ / 04:00 MESZ)
     - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
+      test_mode:
+        description: "Schnelltest – nur GG + BGB + StGB"
+        type: boolean
+        required: false
+        default: false
       gesetz:
-        description: "Nur dieses Gesetz laden (Kürzel, z.B. bgb). Leer = alle Starter-Gesetze."
+        description: "Einzelnes Gesetz (z.B. bgb)"
         required: false
         default: ""
       full_update:
-        description: "Alle ~6000 Gesetze laden (dauert lange)"
+        description: "Alle ~6000 Gesetze"
+        type: boolean
+        required: false
+        default: false
+      mit_urteilen:
+        description: "OpenJur Urteile laden"
         type: boolean
         required: false
         default: false
@@ -20,48 +29,65 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # nötig für git commit
+      contents: write
 
     steps:
-      - name: Repo auschecken
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Python einrichten
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Gesetze laden
+      - name: Gesetze → D1
+        env:
+          CLOUDFLARE_API_TOKEN:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
         run: |
-          if [ "${{ github.event.inputs.full_update }}" = "true" ]; then
-            python scripts/fetch.py --all
+          if [ "${{ github.event.inputs.test_mode }}" = "true" ]; then
+            python scripts/fetch_to_d1.py --test
           elif [ -n "${{ github.event.inputs.gesetz }}" ]; then
-            python scripts/fetch.py --gesetz "${{ github.event.inputs.gesetz }}"
+            python scripts/fetch_to_d1.py --gesetz "${{ github.event.inputs.gesetz }}"
+          elif [ "${{ github.event.inputs.full_update }}" = "true" ]; then
+            python scripts/fetch_to_d1.py --all
           else
-            python scripts/fetch.py
+            python scripts/fetch_to_d1.py
           fi
 
-      - name: Änderungen committen
+      - name: Urteile → D1 (optional)
+        if: ${{ github.event.inputs.mit_urteilen == 'true' || github.event_name == 'schedule' }}
+        env:
+          CLOUDFLARE_API_TOKEN:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
+        run: |
+          if [ "${{ github.event.inputs.test_mode }}" = "true" ]; then
+            python scripts/fetch_openjur.py --test
+          else
+            python scripts/fetch_openjur.py
+          fi
+
+      - name: index.json committen
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add data/
-          # Nur committen wenn es Änderungen gibt
           if git diff --staged --quiet; then
-            echo "Keine Änderungen – nichts zu committen."
+            echo "Keine Änderungen."
           else
-            DATUM=$(date -u "+%Y-%m-%d %H:%M UTC")
-            git commit -m "chore: Gesetze aktualisiert – ${DATUM}"
+            git commit -m "chore: Index aktualisiert – $(date -u '+%Y-%m-%d %H:%M UTC')"
             git push
           fi
 
       - name: Zusammenfassung
         run: |
           echo "## Ergebnis" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f data/meta.json ]; then
-            ANZAHL=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(d.get('anzahl_eintraege', '?'))")
-            GESETZE=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(len(d.get('gesetze', [])))")
-            echo "- **${ANZAHL}** Paragraphen in **${GESETZE}** Gesetzen im Index" >> $GITHUB_STEP_SUMMARY
+            python3 -c "
+import json
+d=json.load(open('data/meta.json'))
+print(f'- **{d[\"anzahl_eintraege\"]:,}** Paragraphen in **{len(d[\"gesetze\"])}** Gesetzen')
+" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "- Abgeschlossen: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
