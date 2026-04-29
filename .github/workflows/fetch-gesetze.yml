@@ -1,21 +1,29 @@
-name: Datenbank aktualisieren
+name: Gesetze aktualisieren
 
 on:
   schedule:
     - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
-      was:
-        description: "Was laden?"
-        required: true
-        default: "test"
-        type: choice
-        options:
-          - test
-          - laws
-          - cases
-          - eu
-          - alle
+      test_mode:
+        description: "Schnelltest – nur GG + BGB + StGB (~1 Min)"
+        type: boolean
+        required: false
+        default: false
+      gesetz:
+        description: "Nur dieses Gesetz laden (z.B. bgb). Leer = Starter-Set (~30 Gesetze)"
+        required: false
+        default: ""
+      full_update:
+        description: "Alle ~6000 Gesetze laden (dauert lange)"
+        type: boolean
+        required: false
+        default: false
+      mit_urteilen:
+        description: "Zusätzlich Urteile von OpenJur laden"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   fetch:
@@ -23,39 +31,56 @@ jobs:
     permissions:
       contents: write
 
+    env:
+      CLOUDFLARE_API_TOKEN:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Repo auschecken
+        uses: actions/checkout@v4
 
-      - name: Test (GG + BGB + StGB)
-        if: ${{ github.event.inputs.was == 'test' }}
-        run: |
-          curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"laws":["GG","BGB","StGB"]}' \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/laws"
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-      - name: Gesetze laden
-        if: ${{ github.event.inputs.was == 'laws' || github.event.inputs.was == 'alle' || github.event_name == 'schedule' }}
+      - name: Gesetze → D1 laden
         run: |
-          curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d '{}' \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/laws"
+          if [ "${{ github.event.inputs.test_mode }}" = "true" ]; then
+            python scripts/fetch_to_d1.py --test
+          elif [ "${{ github.event.inputs.full_update }}" = "true" ]; then
+            python scripts/fetch_to_d1.py --all
+          elif [ -n "${{ github.event.inputs.gesetz }}" ]; then
+            python scripts/fetch_to_d1.py --gesetz "${{ github.event.inputs.gesetz }}"
+          else
+            python scripts/fetch_to_d1.py
+          fi
 
-      - name: Urteile laden
-        if: ${{ github.event.inputs.was == 'cases' || github.event.inputs.was == 'alle' || github.event_name == 'schedule' }}
-        run: |
-          curl -s -X POST \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/cases"
+      - name: Urteile → D1 laden
+        if: ${{ github.event.inputs.mit_urteilen == 'true' }}
+        run: python scripts/fetch_openjur.py
 
-      - name: EU-Recht laden
-        if: ${{ github.event.inputs.was == 'eu' || github.event.inputs.was == 'alle' }}
+      - name: Änderungen committen (lokaler Index)
         run: |
-          curl -s -X POST \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/eu"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add data/
+          if git diff --staged --quiet; then
+            echo "Keine lokalen Änderungen."
+          else
+            DATUM=$(date -u "+%Y-%m-%d %H:%M UTC")
+            git commit -m "chore: Gesetze aktualisiert – ${DATUM}"
+            git push
+          fi
 
       - name: Zusammenfassung
         run: |
           echo "## Ergebnis" >> $GITHUB_STEP_SUMMARY
+          if [ -f data/meta.json ]; then
+            ANZAHL=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(d.get('anzahl_eintraege','?'))")
+            GESETZE=$(python3 -c "import json; d=json.load(open('data/meta.json')); print(len(d.get('gesetze',[])))")
+            echo "- **${ANZAHL}** Paragraphen in **${GESETZE}** Gesetzen in D1 geschrieben" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "- Abgeschlossen: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "- Daten in Cloudflare D1" >> $GITHUB_STEP_SUMMARY
