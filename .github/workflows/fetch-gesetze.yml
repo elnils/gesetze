@@ -26,76 +26,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Test (GG + BGB + StGB)
+        if: ${{ github.event.inputs.was == 'test' }}
+        run: |
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"laws":["GG","BGB","StGB"]}' \
+            "https://ki-gesetze.tageslage.workers.dev/fetch/laws"
+
       - name: Gesetze laden
         if: ${{ github.event.inputs.was == 'laws' || github.event.inputs.was == 'alle' || github.event_name == 'schedule' }}
         run: |
           curl -s -X POST \
             -H "Content-Type: application/json" \
             -d '{}' \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/laws" \
-            | tee /tmp/laws_result.json
-          echo "Gesetze: $(cat /tmp/laws_result.json | python3 -c 'import sys,json; d=json.load(sys.stdin); print(f"{d[\"ok\"]}/{d[\"total\"]} Gesetze, {d[\"index_entries\"]} §§")')"
-
-      - name: Test (nur GG+BGB+StGB)
-        if: ${{ github.event.inputs.was == 'test' }}
-        run: |
-          curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"laws":["GG","BGB","StGB"]}' \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/laws" \
-            | python3 -c 'import sys,json; d=json.load(sys.stdin); print("\n".join(d.get("log",[])))'
+            "https://ki-gesetze.tageslage.workers.dev/fetch/laws"
 
       - name: Urteile laden
         if: ${{ github.event.inputs.was == 'cases' || github.event.inputs.was == 'alle' || github.event_name == 'schedule' }}
         run: |
           curl -s -X POST \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/cases" \
-            | python3 -c 'import sys,json; d=json.load(sys.stdin); print("\n".join(d.get("log",[])))'
+            "https://ki-gesetze.tageslage.workers.dev/fetch/cases"
 
       - name: EU-Recht laden
         if: ${{ github.event.inputs.was == 'eu' || github.event.inputs.was == 'alle' }}
         run: |
           curl -s -X POST \
-            "https://ki-gesetze.tageslage.workers.dev/fetch/eu" \
-            | python3 -c 'import sys,json; d=json.load(sys.stdin); print("\n".join(d.get("log",[])))'
-
-      - name: index.json für Browser holen und committen
-        run: |
-          # Worker gibt schlanken Index zurück - direkt aus D1
-          curl -s "https://ki-gesetze.tageslage.workers.dev/search?q=§&typ=gesetze&limit=50" \
-            > /tmp/sample.json || true
-          
-          # Echten Index aus D1 über separaten Endpunkt holen
-          python3 - << 'PY'
-import urllib.request, json, pathlib
-
-# Kompakten Index aus Suchergebnissen aufbauen
-# (Worker /search gibt bereits strukturierte Daten)
-try:
-    url = "https://ki-gesetze.tageslage.workers.dev/search?q=&typ=gesetze&limit=50"
-    with urllib.request.urlopen(url, timeout=30) as r:
-        data = json.loads(r.read())
-    print(f"Beispiel-Daten: {len(data)} Einträge")
-except Exception as e:
-    print(f"Hinweis: {e}")
-PY
-
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ || true
-          git stash || true
-          git pull --rebase origin main || true
-          git stash pop || true
-          git add data/ || true
-          if git diff --staged --quiet; then
-            echo "Keine lokalen Änderungen."
-          else
-            git commit -m "chore: Index aktualisiert – $(date -u '+%Y-%m-%d %H:%M UTC')"
-            git push
-          fi
+            "https://ki-gesetze.tageslage.workers.dev/fetch/eu"
 
       - name: Zusammenfassung
         run: |
           echo "## Ergebnis" >> $GITHUB_STEP_SUMMARY
           echo "- Abgeschlossen: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "- Daten liegen in Cloudflare D1" >> $GITHUB_STEP_SUMMARY
+          echo "- Daten in Cloudflare D1" >> $GITHUB_STEP_SUMMARY
