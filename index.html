@@ -136,6 +136,20 @@
     /* Toast */
     #toast { position:fixed; bottom:1.4rem; left:50%; transform:translateX(-50%) translateY(60px); background:var(--ink); color:#fff; padding:.42rem 1.1rem; border-radius:20px; font-family:var(--mono); font-size:.7rem; transition:transform .22s; z-index:999; pointer-events:none }
     #toast.on { transform:translateX(-50%) translateY(0) }
+
+    /* Admin */
+    #adminbox { background:#fff; border:1.5px solid var(--brd2); border-radius:var(--r); padding:1rem 1.1rem; margin
+
+    /* Admin Panel */
+    #adminpanel { display:none; background:#fff; border:1px solid var(--brd); border-radius:var(--r); padding:.9rem 1rem; margin-bottom:.9rem; box-shadow:var(--sh) }
+    #adminpanel.on { display:block }
+    .admin-head { font-family:var(--mono); font-size:.65rem; color:var(--ink3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.6rem }
+    .admin-btns { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem }
+    #adminlog { font-family:var(--mono); font-size:.7rem; color:var(--ink2); background:var(--bg2); border-radius:var(--rs); padding:.5rem .7rem; max-height:160px; overflow-y:auto; white-space:pre-wrap; display:none }
+    #adminlog.on { display:block }
+    .alog-ok  { color:var(--green) }
+    .alog-err { color:var(--red) }
+    .alog-inf { color:var(--blue) }
   </style>
 </head>
 <body>
@@ -187,6 +201,18 @@
     </div>
 
     <div class="smeta"><span id="rcount">–</span> <span id="dbinfo"></span></div>
+
+    <div id="adminpanel">
+      <div class="admin-head">⚙ Datenbank verwalten</div>
+      <div class="admin-btns">
+        <button class="btn btn-p" onclick="adminLoad('laws')">📜 Gesetze laden</button>
+        <button class="btn btn-g" onclick="adminLoad('cases')">⚖ Urteile laden</button>
+        <button class="btn btn-g" onclick="adminLoad('eu')">🇪🇺 EU-Recht laden</button>
+      </div>
+      <div id="adminlog"></div>
+    </div>
+
+
 
     <div class="tabs" id="tabs">
       <button class="tab on" onclick="setTab('alle',this)">Alle</button>
@@ -625,6 +651,40 @@ function askCurrent() {
   aiMode = true;
   doSearch(q);
   askAI(q);
+}
+
+
+// ── Admin (Shift+Alt+A zum Öffnen) ───────────────────────────────────────────
+document.addEventListener("keydown", e => {
+  if (e.shiftKey && e.altKey && e.key === "A") {
+    document.getElementById("adminpanel").classList.toggle("on");
+  }
+});
+
+async function adminLoad(typ) {
+  const log = document.getElementById("adminlog");
+  const btns = document.querySelectorAll("#adminpanel .btn");
+  log.className = "on";
+  log.innerHTML = `<span class="alog-inf">→ Starte /fetch/${typ}… (bitte warten)</span>\n`;
+  btns.forEach(b => b.disabled = true);
+  try {
+    const r = await fetch(`${W}/fetch/${typ}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    (d.log || []).forEach(line => {
+      const cls = line.startsWith("✓") ? "alog-ok" : "alog-err";
+      log.innerHTML += `<span class="${cls}">${line}</span>\n`;
+    });
+    log.innerHTML += `\n<span class="alog-ok">✓ Fertig! ${d.ok ?? d.total ?? "?"} Gesetze, ${d.index_entries ?? "?"} Einträge.</span>`;
+    init(); // Status-Zeile aktualisieren
+  } catch(e) {
+    log.innerHTML += `<span class="alog-err">✗ ${e.message}</span>`;
+  }
+  btns.forEach(b => b.disabled = false);
 }
 </script>
 </body>
